@@ -1,0 +1,35 @@
+{
+  "format_version": "social_content_v1",
+  "client_name": "Spider-Man Fan Demo",
+  "campaign": "Friendly Neighbourhood Reel Demo",
+  "posts": [
+    {
+      "title": "Spider-Sense Activated — Spider-Man Reel Demo",
+      "topic": "A fast fan-made superhero Reel showing Spider-Man swinging through a comic-style city.",
+      "goal": "Demonstrate an engaging vertical Reel concept and encourage followers.",
+      "content_type": "reel",
+      "scheduled_date": "2026-08-19",
+      "recommended_time": "18:30",
+      "timezone": "Asia/Kolkata",
+      "platforms": {
+        "instagram": {
+          "hook": "Your spider-sense is tingling… 🕷️",
+          "caption": "From rooftop swings to split-second saves—this friendly neighbourhood hero never misses the call. Watch the city come alive in six seconds of comic-book energy.\n\nFan-made demo content. Not affiliated with Marvel or Sony.",
+          "cta": "Follow for more fan-made superhero Reel concepts.",
+          "hashtags": [
+            "#SpiderMan",
+            "#SuperheroReel",
+            "#ComicBook",
+            "#FanMade",
+            "#ReelDemo",
+            "#SocialFlowOS"
+          ],
+          "creative_idea": "A vertical red-and-blue comic animation with moving web lines, a swinging masked hero silhouette and four fast text beats.",
+          "image_prompt": "Create a vertical family-friendly comic Reel cover with a masked red-and-blue spider-themed hero swinging above a city at sunset. No logo, no watermark and no actor likeness.",
+          "post_format": "Instagram Reel",
+          "video_format": "9:16 vertical, 6 seconds"
+        }
+      }
+    }
+  ]
+}

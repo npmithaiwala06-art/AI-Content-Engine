@@ -1,0 +1,39 @@
+.account-grid header > b.connected {
+  color: #067452;
+  background: #e5f7ef;
+}
+
+.account-grid footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.official-token-form > .official-refresh-toggle {
+  color: #42685e;
+  border: 1px solid #cfddd8;
+  background: #fff;
+}
+
+.official-refresh-fields {
+  grid-column: 1 / -1;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border: 1px solid #dae5e1;
+  border-radius: 8px;
+  background: #f1f7f5;
+}
+
+.official-refresh-fields > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #697773;
+  font-size: 6.3px;
+  line-height: 1.5;
+}
+
+.official-refresh-fields label:last-child {
+  grid-column: 1 / -1;
+}

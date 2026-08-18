@@ -1,0 +1,248 @@
+.background-scheduler-control {
+  min-height: 70px;
+  padding: 10px 13px;
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  color: #5a6670;
+  border-bottom: 1px solid #eeeef2;
+  background: #fbfcfd;
+}
+
+.background-scheduler-control > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.background-scheduler-control strong {
+  color: #565965;
+  font-size: 7.5px;
+}
+
+.background-scheduler-control small {
+  max-width: 390px;
+  margin-top: 3px;
+  color: #8d919c;
+  font-size: 6.2px;
+  line-height: 1.45;
+}
+
+.background-scheduler-control button {
+  min-width: 62px;
+  height: 27px;
+  color: #676b76;
+  border: 1px solid #dadde2;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 6.3px;
+  font-weight: 700;
+}
+
+.background-scheduler-control button.on {
+  color: #126c50;
+  border-color: #b9e1d3;
+  background: #e9f8f2;
+}
+
+.background-scheduler-control button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.keychain-rule {
+  padding-left: 38px !important;
+}
+
+.keychain-rule > svg {
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  color: #2d7a65;
+}
+
+.official-setup-modal {
+  width: min(620px, 90vw);
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(23, 20, 43, 0.28);
+}
+
+.official-setup-modal > header,
+.official-setup-modal > footer {
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.official-setup-modal > header {
+  border-bottom: 1px solid #ececf1;
+}
+
+.official-setup-modal header span {
+  color: #6041c1;
+  font-size: 6.4px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.official-setup-modal h3 {
+  margin: 3px 0 0;
+  font:
+    700 12px Manrope,
+    sans-serif;
+}
+
+.official-setup-modal header button {
+  border: 0;
+  background: transparent;
+}
+
+.official-setup-modal > div {
+  padding: 16px;
+}
+
+.official-setup-modal > div > p {
+  margin: 0;
+  color: #737784;
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.official-setup-modal ol {
+  margin: 12px 0;
+  padding-left: 20px;
+  color: #4f525e;
+  font-size: 8px;
+  line-height: 1.8;
+}
+
+.official-setup-modal article {
+  margin-top: 9px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f6f5f9;
+}
+
+.official-setup-modal article strong {
+  color: #4e515d;
+  font-size: 7.5px;
+}
+
+.official-setup-modal article p {
+  margin: 4px 0 0;
+  color: #777b87;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.official-setup-modal .keychain-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #167056;
+  background: #eaf8f2;
+}
+
+.official-setup-modal .keychain-note span {
+  display: flex;
+  flex-direction: column;
+}
+
+.official-setup-modal .keychain-note small {
+  margin-top: 2px;
+  color: #69857c;
+  font-size: 6.4px;
+}
+
+.official-setup-modal > footer {
+  border-top: 1px solid #ececf1;
+  background: #fafafd;
+}
+
+.official-setup-modal footer small {
+  color: #9699a4;
+  font-size: 6.5px;
+}
+
+.official-setup-modal footer a {
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  border-radius: 7px;
+  background: #6746c8;
+  font-size: 6.8px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.official-token-form {
+  margin-top: 12px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border: 1px solid #d9e3df;
+  border-radius: 9px;
+  background: #f8fbfa;
+}
+
+.official-token-form h4,
+.official-token-form > p,
+.official-token-form > button {
+  grid-column: 1 / -1;
+}
+
+.official-token-form h4 {
+  margin: 0;
+  color: #424f4c;
+  font-size: 8px;
+}
+
+.official-token-form > p {
+  margin: 0 0 2px;
+  color: #747f7c;
+  font-size: 6.3px;
+  line-height: 1.55;
+}
+
+.official-token-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #636d6a;
+  font-size: 6.3px;
+  font-weight: 650;
+}
+
+.official-token-form input {
+  height: 31px;
+  padding: 0 8px;
+  color: #414a48;
+  border: 1px solid #d6dfdc;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 7px;
+}
+
+.official-token-form > button {
+  height: 31px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #fff;
+  border: 0;
+  border-radius: 7px;
+  background: #376f61;
+  font-size: 6.8px;
+}
+
+.official-token-form > button:disabled {
+  opacity: .45;
+}

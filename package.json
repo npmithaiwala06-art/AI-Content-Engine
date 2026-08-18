@@ -1,0 +1,40 @@
+{
+  "name": "local-social-os",
+  "private": true,
+  "version": "0.3.3",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build && npm run desktop:sign",
+    "desktop:sign": "codesign --force --deep --sign - \"src-tauri/target/release/bundle/macos/SocialFlow OS.app\"",
+    "desktop:notarize": "./scripts/notarize-macos.sh"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-opener": "^2.5.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.1.1",
+    "recharts": "^3.1.2"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^25.0.1",
+    "typescript": "~5.6.3",
+    "vite": "^7.1.0",
+    "vitest": "^4.0.0"
+  }
+}

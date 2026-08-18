@@ -1,0 +1,86 @@
+.recommendation-modal .recommendation-body {
+  grid-template-columns: minmax(0, 1.45fr) minmax(180px, 0.55fr);
+  align-items: start;
+}
+
+.recommendation-help {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  color: #4d5260;
+  border: 1px solid #dfe7e4;
+  border-radius: 9px;
+  background: #f6faf8;
+}
+
+.recommendation-help strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #315f53;
+  font-size: 7.5px;
+}
+
+.recommendation-help ol {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  gap: 24px;
+  color: #555a66;
+  font-size: 6.8px;
+}
+
+.recommendation-help small {
+  display: block;
+  margin-top: 6px;
+  color: #a05445;
+  font-size: 6.3px;
+  font-weight: 600;
+}
+
+.recommendation-tools {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 6px;
+}
+
+.recommendation-tools button {
+  height: 27px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #42685e;
+  border: 1px solid #d5e3df;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 6.5px;
+  font-weight: 700;
+}
+
+.recommendation-modal textarea {
+  min-height: 210px;
+  width: 100%;
+}
+
+.recommendation-modal .recommendation-empty {
+  color: #666b76;
+  border-color: #e1e2e7;
+  background: #fafafd;
+}
+
+.recommendation-modal .recommendation-empty strong {
+  color: #555a65;
+}
+
+@media (max-width: 780px) {
+  .recommendation-modal .recommendation-body {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation-help ol {
+    display: block;
+  }
+
+  .recommendation-modal article {
+    grid-column: 1;
+  }
+}

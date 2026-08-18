@@ -1,0 +1,1 @@
+import type{PlatformKey}from"./client";export interface CalendarItem{scheduleId:string;postId:string;postVersionId:string;clientId:string;clientName:string;campaignId?:string;campaignName?:string;title:string;platform:PlatformKey;contentType:string;status:string;scheduledFor:string;timezone:string;caption:string;}

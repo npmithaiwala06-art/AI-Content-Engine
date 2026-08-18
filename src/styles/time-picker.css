@@ -1,0 +1,100 @@
+.friendly-time-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.friendly-time-fields {
+  min-height: 36px;
+  padding: 4px 7px;
+  display: grid;
+  grid-template-columns: 18px minmax(55px, 1fr) 6px minmax(58px, 1fr) minmax(62px, .85fr) 26px;
+  align-items: center;
+  gap: 4px;
+  color: #777b88;
+  border: 1px solid #dfe1e7;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.friendly-time-fields:focus-within {
+  border-color: #8b71e3;
+  box-shadow: 0 0 0 3px rgba(111, 78, 215, .09);
+}
+
+.friendly-time-fields select {
+  width: 100%;
+  height: 27px !important;
+  padding: 0 5px !important;
+  color: #444651;
+  border: 0 !important;
+  border-radius: 5px;
+  outline: 0;
+  background: #f7f7fa;
+  font-size: 8px !important;
+  resize: none !important;
+}
+
+.friendly-time-fields > span {
+  color: #8f929e;
+  text-align: center;
+  font-weight: 700;
+}
+
+.friendly-time-clear {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: #8e929e;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.friendly-time-clear:hover {
+  color: #b44848;
+  background: #fff0f0;
+}
+
+.friendly-time-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.friendly-time-quick button {
+  height: 23px;
+  padding: 0 7px;
+  color: #747886;
+  border: 1px solid #e0e1e7;
+  border-radius: 6px;
+  background: #fafafd;
+  font-size: 6.5px;
+}
+
+.friendly-time-quick button:hover,
+.friendly-time-quick button.active {
+  color: #6544c8;
+  border-color: #b8a8e8;
+  background: #f4f0ff;
+}
+
+.import-post-fields .friendly-time-picker {
+  min-width: 225px;
+}
+
+.import-post-fields .friendly-time-quick {
+  display: none;
+}
+
+.schedule-modal .friendly-time-picker {
+  min-width: 250px;
+}
+
+@media (max-width: 1180px) {
+  .friendly-time-fields {
+    grid-template-columns: 16px minmax(50px, 1fr) 5px minmax(52px, 1fr) minmax(56px, .85fr) 24px;
+  }
+}

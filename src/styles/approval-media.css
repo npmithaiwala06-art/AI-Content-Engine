@@ -1,0 +1,24 @@
+.approval-body {
+  grid-template-columns: 240px 1fr;
+}
+
+.approval-media {
+  overflow: hidden;
+}
+
+.approval-media.has-media {
+  padding: 0;
+  background: #16131d;
+}
+
+.approval-media img,
+.approval-media video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.approval-media video {
+  background: #050507;
+}

@@ -1,0 +1,1 @@
+export interface ReportRecord{id:string;clientId:string;clientName:string;reportType:string;periodStart:string;periodEnd:string;totalReach:number;totalEngagement:number;bestPlatform:string;exportPath?:string;createdAt:string}
