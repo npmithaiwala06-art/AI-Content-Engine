@@ -7,6 +7,7 @@ import {
   LoaderCircle,
   Play,
   Power,
+  RefreshCw,
   Save,
   ShieldCheck,
   Sparkles,
@@ -28,9 +29,12 @@ import {
   type SecurityStatus,
 } from "../services/system";
 import type { BackupRecord, SettingRecord } from "../types/workspace";
+import { checkForAppUpdate } from "../services/appUpdater";
+import { useAppUpdateState } from "../components/AppUpdater";
 const get = (settings: SettingRecord[], key: string, fallback: boolean) =>
   (settings.find((s) => s.key === key)?.value as boolean) ?? fallback;
 export function SettingsPage() {
+  const appUpdate = useAppUpdateState();
   const [settings, setSettings] = useState<SettingRecord[]>([]);
   const [backups, setBackups] = useState<BackupRecord[]>([]);
   const [background, setBackground] = useState<BackgroundSchedulerStatus>();
@@ -135,6 +139,42 @@ export function SettingsPage() {
         </div>
       )}
       <div className="settings-grid">
+        <section className="panel app-update-card">
+          <header>
+            <RefreshCw size={16} />
+            <div>
+              <h3>Automatic App Updates</h3>
+              <p>Secure releases from GitHub</p>
+            </div>
+            <b className={appUpdate.phase === "error" ? "error" : ""}>
+              {appUpdate.phase === "installed" ? "Ready" : "Always On"}
+            </b>
+          </header>
+          <div className="app-update-control">
+            <span>
+              <strong>
+                {appUpdate.currentVersion
+                  ? `Installed version ${appUpdate.currentVersion}`
+                  : "SocialFlow OS desktop"}
+              </strong>
+              <small>{appUpdate.message}</small>
+            </span>
+            <button
+              disabled={appUpdate.phase === "checking" || appUpdate.phase === "downloading"}
+              onClick={() => void checkForAppUpdate()}
+            >
+              <RefreshCw
+                className={appUpdate.phase === "checking" ? "spin" : ""}
+                size={12}
+              />
+              Check now
+            </button>
+          </div>
+          <p>
+            The app checks after launch and every six hours. Signed updates install quietly and
+            take effect the next time SocialFlow OS opens.
+          </p>
+        </section>
         <section className="panel">
           <header>
             <Database size={16} />

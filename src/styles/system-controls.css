@@ -10,6 +10,69 @@
   background: #fbfcfd;
 }
 
+.app-update-card > header > b {
+  padding: 4px 7px;
+  color: #176d53;
+  border-radius: 6px;
+  background: #e7f6f0;
+  font-size: 6px;
+}
+
+.app-update-card > header > b.error {
+  color: #9c4444;
+  background: #fff0f0;
+}
+
+.app-update-control {
+  min-height: 74px;
+  padding: 12px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-update-control > span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-update-control strong {
+  color: #555965;
+  font-size: 7.5px;
+}
+
+.app-update-control small,
+.app-update-card > p {
+  margin-top: 3px;
+  color: #8d919c;
+  font-size: 6.2px;
+  line-height: 1.5;
+}
+
+.app-update-control button {
+  height: 28px;
+  padding: 0 9px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #176d53;
+  border: 1px solid #b9e1d3;
+  border-radius: 7px;
+  background: #eef9f5;
+  font-size: 6.3px;
+  font-weight: 700;
+}
+
+.app-update-control button:disabled {
+  opacity: 0.55;
+}
+
+.app-update-card > p {
+  margin: 0;
+  padding: 0 13px 12px;
+}
+
 .background-scheduler-control > span {
   display: flex;
   flex-direction: column;

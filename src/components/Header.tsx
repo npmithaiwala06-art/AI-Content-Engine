@@ -9,7 +9,8 @@ import type { SearchResult } from "../types/workspace";
 const commands = [
   { label: "Dashboard", description: "Social operations overview", to: "/" },
   { label: "Clients", description: "Client profiles and brand memory", to: "/clients" },
-  { label: "AI Workspace", description: "ChatGPT prompt and import workflow", to: "/ai-workspace" },
+  { label: "AI Workspace", description: "Connected content generation and import workflow", to: "/ai-workspace" },
+  { label: "ChatGPT", description: "Manage the official Codex subscription connection", to: "/chatgpt" },
   { label: "Import ChatGPT Result", description: "Parse structured content into local drafts", to: "/ai-workspace/import" },
   { label: "Create Content", description: "Create platform-specific content", to: "/create" },
   { label: "Campaigns", description: "Campaign goals, content and performance", to: "/campaigns" },
@@ -111,7 +112,7 @@ export function Header({ title, description }: HeaderProps) {
               <div className="popover profile-popover" role="menu">
                 <div className="profile-summary"><span className="profile-avatar">NM</span><div><strong>Neev</strong><small>Local administrator</small></div></div>
                 <Link to="/settings" role="menuitem" onClick={() => setProfileOpen(false)}><Settings size={15} /> Application settings</Link>
-                <div className="privacy-row"><ShieldCheck size={15} /><span><strong>Private workspace</strong><small>No AI API connected</small></span></div>
+                <div className="privacy-row"><ShieldCheck size={15} /><span><strong>Private workspace</strong><small>No AI API key required</small></span></div>
               </div>
             )}
           </div>

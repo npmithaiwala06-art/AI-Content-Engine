@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
@@ -15,12 +15,12 @@ describe("Phase 3 AI Workspace", () => {
 
   it("validates that a client is selected before generating", async () => {
     render(<MemoryRouter initialEntries={["/ai-workspace"]}><App /></MemoryRouter>);
-    await screen.findByRole("button", { name: "Generate ChatGPT Prompt" });
-    fireEvent.click(screen.getByRole("button", { name: "Generate ChatGPT Prompt" }));
+    await screen.findByRole("button", { name: "Generate Content" });
+    fireEvent.click(screen.getByRole("button", { name: "Generate Content" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Select a client");
   });
 
-  it("generates, stores and copies a Brand Profile-aware prompt", async () => {
+  it("transfers a Brand Profile-aware prompt to the SocialFlow content assistant", async () => {
     render(<MemoryRouter initialEntries={["/ai-workspace"]}><App /></MemoryRouter>);
     const clientSelect = await screen.findByRole("combobox", { name: "AI Workspace client" });
     fireEvent.change(clientSelect, { target: { value: "preview-abc-cafe" } });
@@ -28,19 +28,14 @@ describe("Phase 3 AI Workspace", () => {
 
     fireEvent.change(screen.getByRole("textbox", { name: "Content goal" }), { target: { value: "Increase weekend customers" } });
     fireEvent.change(screen.getByRole("textbox", { name: "Content topic" }), { target: { value: "Weekend coffee offer" } });
-    fireEvent.click(screen.getByRole("button", { name: "Generate ChatGPT Prompt" }));
+    fireEvent.click(screen.getByRole("button", { name: "Generate Content" }));
 
-    const preview = await screen.findByLabelText("Generated ChatGPT prompt");
-    expect(preview).toHaveTextContent("Brand voice: Friendly, energetic and local");
-    expect(preview).toHaveTextContent("Instagram requirements:");
-    expect(preview).toHaveTextContent("Facebook requirements:");
-    expect(preview).toHaveTextContent('"format_version": "social_content_v1"');
-    expect(screen.getByRole("status")).toHaveTextContent("Prompt generated and saved locally");
-
-    fireEvent.click(screen.getByRole("button", { name: "Copy Prompt" }));
-    await waitFor(() => expect(writeText).toHaveBeenCalledOnce());
-    expect(await screen.findByRole("status")).toHaveTextContent("paste it into ChatGPT");
-    expect(screen.getByText("1 copy")).toBeInTheDocument();
+    const transferred = await screen.findByRole("textbox", { name: "What should SocialFlow create?" });
+    const transferredValue = (transferred as HTMLTextAreaElement).value;
+    expect(transferredValue).toContain("Brand voice: Friendly, energetic and local");
+    expect(transferredValue).toContain("Instagram requirements:");
+    expect(transferredValue).toContain("Facebook requirements:");
+    expect(screen.getByRole("button", { name: /Image \+ video/ })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("applies the selected planning template", async () => {

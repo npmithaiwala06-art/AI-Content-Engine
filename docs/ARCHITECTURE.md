@@ -5,7 +5,7 @@
 ```text
 One Mac
   → multiple local client and brand workspaces
-  → platform-specific content prepared through ChatGPT copy/import
+  → platform-specific content generated through a connected local Codex client
   → mandatory human review
   → approved local schedules
   → durable scheduler and publishing queue
@@ -33,14 +33,17 @@ AI content cannot jump directly into scheduling. Imported content starts as `dra
                           ▼
                    Social platforms
 
-ChatGPT remains outside the runtime:
-App prompt → user-controlled ChatGPT conversation → structured import.
+ChatGPT credentials remain outside the SocialFlow application runtime:
+App prompt → official local Codex client → subscription model → structured result → reviewed draft import.
 ```
+
+The native connector launches the official Codex browser sign-in and assigns it a private `CODEX_HOME` under SocialFlow's application-data directory. SocialFlow invokes the client but never reads the password or parses raw OAuth credentials. Generation uses an ephemeral Codex session, an empty application cache workspace and the read-only Codex sandbox. See [CHATGPT_WEBVIEW.md](CHATGPT_WEBVIEW.md).
 
 ## Major native modules
 
 - `clients.rs`: clients, Brand Profiles, logos and lifecycle.
-- `ai_workspace.rs`: local prompt history for the manual provider.
+- `ai_workspace.rs`: local prompt history and structured content briefs.
+- `chatgpt.rs`: official Codex discovery, isolated sign-in status and bounded generation.
 - `content_importer.rs`: structured validation, ownership and duplicate prevention.
 - `content_studio.rs`: editable core posts and independent platform versions.
 - `media_library.rs`: local file validation, metadata and post attachments.
@@ -67,7 +70,7 @@ No social-media password is accepted. Future OAuth refresh/access tokens must be
 
 ## AI boundary
 
-The manual provider declares no network execution method. The prompt builder combines:
+The prompt builder combines:
 
 - Client and Brand Profile memory
 - Campaign and content requirements
@@ -76,7 +79,7 @@ The manual provider declares no network execution method. The prompt builder com
 - Imported recommendations
 - A versioned JSON response contract
 
-The importer validates that contract and always creates drafts. `privacy.ai_api_enabled` is permanently rejected if any caller attempts to turn it on.
+When a private Codex session is connected, SocialFlow sends that brief only after an explicit Generate action and receives the final response through the official client. Otherwise, the manual provider and optional local Ollama workflow remain available. The importer validates the response contract and always creates drafts. `privacy.ai_api_enabled` remains rejected because this connection does not enable the OpenAI API.
 
 ## Local ownership and security
 
@@ -86,4 +89,4 @@ The importer validates that contract and always creates drafts. `privacy.ai_api_
 - Report and backup output stays local.
 - Restore validates SQLite integrity, creates a safety copy and applies before database startup.
 - Errors cross the Tauri boundary as sanitized application messages.
-- No cloud database, remote backend or AI secret is present.
+- No cloud database or remote SocialFlow AI gateway is present. Codex authentication is stored only in SocialFlow's private app-data session directory and is managed by the official client.

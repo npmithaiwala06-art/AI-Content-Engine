@@ -5,6 +5,7 @@ mod automation;
 mod background;
 mod calendar;
 mod campaigns;
+mod chatgpt;
 mod clients;
 mod content_importer;
 mod content_studio;
@@ -53,6 +54,38 @@ fn initialize_application(app: tauri::AppHandle) -> Result<String, AppError> {
         .app_data_dir()
         .map_err(|_| AppError::AppDataDirectoryUnavailable)?;
     Ok(app_data.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+fn get_codex_status(
+    app: tauri::AppHandle,
+    runtime: State<'_, chatgpt::CodexRuntime>,
+) -> chatgpt::CodexStatus {
+    chatgpt::status(&app, &runtime)
+}
+
+#[tauri::command]
+fn start_codex_login(
+    app: tauri::AppHandle,
+    runtime: State<'_, chatgpt::CodexRuntime>,
+) -> Result<(), String> {
+    chatgpt::start_login(app, runtime.inner().clone())
+}
+
+#[tauri::command]
+fn logout_codex(
+    app: tauri::AppHandle,
+    runtime: State<'_, chatgpt::CodexRuntime>,
+) -> Result<(), String> {
+    chatgpt::logout(&app, &runtime)
+}
+
+#[tauri::command]
+async fn generate_with_codex(
+    app: tauri::AppHandle,
+    prompt: String,
+) -> Result<chatgpt::CodexGenerationResult, String> {
+    chatgpt::generate(app, prompt).await
 }
 
 #[tauri::command]
@@ -613,6 +646,8 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .manage(chatgpt::CodexRuntime::default())
         .setup(|app| {
             let app_data_dir: PathBuf = app.path().app_data_dir()?;
             workspace::apply_pending_restore(&app_data_dir)
@@ -625,6 +660,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             initialize_application,
+            get_codex_status,
+            start_codex_login,
+            logout_codex,
+            generate_with_codex,
             get_dashboard_summary,
             list_clients,
             get_client,

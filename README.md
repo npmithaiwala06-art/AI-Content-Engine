@@ -4,7 +4,7 @@ SocialFlow OS is a professional local-first social-media automation application 
 
 > **Product law:** One Mac → Multiple Clients → Multiple Social Platforms → ChatGPT Creates → Human Approves → Scheduled Automatically → Published → Analytics → ChatGPT Improves Future Content.
 
-The application does not use or request an AI API key. It prepares structured prompts for ChatGPT, imports structured results as local drafts, and keeps the human approval boundary mandatory by default.
+The application does not require an AI API key. For a personal desktop installation, it can connect a ChatGPT account through the official Codex client, generate structured content directly inside SocialFlow, and import the result as local drafts. Manual copy/import and local Ollama remain available as fallbacks. The human approval boundary remains mandatory by default.
 
 ## Implementation status
 
@@ -12,8 +12,9 @@ The complete local product workflow is implemented through the Phase 40 audit:
 
 - Tauri 2 desktop application with React, TypeScript, Rust and SQLite
 - multi-client CRUD, archived clients, logos and persistent Brand Profiles
-- manual ChatGPT AI Workspace with Brand Memory, analytics learning and copy/export
-- optional local Ollama provider detection and generation with installed on-device models; manual ChatGPT remains the default
+- connected Codex AI Workspace with Brand Memory, analytics learning, structured generation and copy/export
+- isolated ChatGPT subscription sign-in through the official Codex browser flow; SocialFlow never receives the password or reads raw session credentials
+- optional local Ollama provider detection and generation with installed on-device models; manual ChatGPT remains available
 - validated `social_content_v1` importer with preview and duplicate prevention
 - platform-specific Content Studio for Instagram, Facebook, LinkedIn and YouTube
 - local Media Library with upload, preview, search, tags and per-platform post attachments
@@ -45,11 +46,15 @@ Official adapter code is included in version 0.3.0, but a real account becomes a
 | Native core | Rust | SQLite, files, scheduler, adapters, exports and backups |
 | Database | SQLite with `rusqlite` | One local source of truth; no server |
 | Media | macOS application-data folder | Local ownership and backup boundary |
-| AI | Manual ChatGPT provider | No AI key and no hidden AI network call |
+| AI | Official local Codex client, manual ChatGPT fallback and optional Ollama | ChatGPT subscription mode needs no API key |
 
 A separate FastAPI process is not used because the Tauri native core already provides the required local database, scheduler and file operations with less operational complexity.
 
 ## Exact macOS commands
+
+Installed desktop builds automatically check GitHub Releases for signed updates after launch and
+every six hours. Updates install quietly and take effect on the next launch. See
+[automatic desktop updates](docs/AUTO_UPDATES.md) for signing and publishing instructions.
 
 Open Terminal and run:
 
@@ -112,13 +117,13 @@ cargo test --manifest-path src-tauri/Cargo.toml
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
-You should see 22 frontend tests and 27 native tests pass, followed by a clean strict Clippy result.
+You should see 30 frontend tests and 30 native tests pass, followed by a clean strict Clippy result.
 
 ## End-to-end test
 
 1. Create a client and complete its Brand Profile.
-2. Open **AI Workspace**, generate a prompt, copy it into ChatGPT and request the exact JSON contract.
-3. Open **Import ChatGPT Result**, paste the response, validate it and save selected posts.
+2. Open **ChatGPT**, choose **Connect ChatGPT**, and complete the official OpenAI browser sign-in once.
+3. Open **AI Workspace** and choose **Generate Content**. Review the returned JSON and import selected posts as drafts without copy/paste.
 4. Open **Create Content**, edit each platform independently and attach local media.
 5. Send the post for approval. Approve it in **Approvals**.
 6. Schedule it from **Calendar** using a near-future time.
@@ -141,5 +146,9 @@ You should see 22 frontend tests and 27 native tests pass, followed by a clean s
 - **Media will not delete:** detach it from all post versions first.
 - **Restore says restart required:** quit and reopen SocialFlow OS; the restore is applied before the database opens, and the current database is preserved as a safety copy.
 - **Official Connect rejects a token:** confirm the developer app permissions, account ID/URN/channel ID, token expiry and platform review status. This is unrelated to AI keys.
+- **ChatGPT connection is unavailable:** install the ChatGPT desktop app or official Codex CLI, then reopen SocialFlow and connect again.
+- **Codex limit reached:** generation follows the connected ChatGPT account's Codex allowance; wait for its reset or use an available credit option.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DATABASE.md](docs/DATABASE.md), [docs/RELEASE_READINESS.md](docs/RELEASE_READINESS.md), and [docs/FINAL_PRODUCT_AUDIT.md](docs/FINAL_PRODUCT_AUDIT.md) for the implementation and audit details.
+
+The isolated ChatGPT subscription design is documented in [docs/CHATGPT_WEBVIEW.md](docs/CHATGPT_WEBVIEW.md).

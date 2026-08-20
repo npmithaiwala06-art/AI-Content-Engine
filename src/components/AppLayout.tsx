@@ -3,12 +3,14 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { FirstRunOnboarding } from "./FirstRunOnboarding";
+import { AppUpdater } from "./AppUpdater";
 
 const pageMeta: Record<string, { title: string; description: string }> = {
   "/": { title: "Good afternoon, Neev", description: "Here’s what’s happening across your social operations." },
   "/clients": { title: "Clients", description: "Manage client brands, memory, assets and social presence." },
-  "/ai-workspace": { title: "AI Workspace", description: "Prepare structured work for ChatGPT and import the results." },
+  "/ai-workspace": { title: "AI Workspace", description: "Generate structured social content from local Brand Memory." },
   "/ai-workspace/import": { title: "Import ChatGPT Result", description: "Validate, review and save structured content as local drafts." },
+  "/chatgpt": { title: "ChatGPT", description: "Connect your subscription through the official Codex client." },
   "/create": { title: "Create Content", description: "Turn one idea into native content for every platform." },
   "/campaigns": { title: "Campaigns", description: "Connect goals, content, media, calendars and results." },
   "/plans": { title: "Content Plans", description: "Organise one-off posts, campaigns and monthly plans." },
@@ -43,6 +45,7 @@ export function AppLayout() {
         <main className="page-content"><Outlet /></main>
       </div>
       <FirstRunOnboarding />
+      <AppUpdater />
     </div>
   );
 }

@@ -11,3 +11,4 @@ releases/
 *.db
 coverage/
 *.tsbuildinfo
+.tauri/

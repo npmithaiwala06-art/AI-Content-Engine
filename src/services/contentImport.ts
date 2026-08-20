@@ -2,6 +2,28 @@ import { invoke } from "@tauri-apps/api/core";
 import type { ContentImportSaveResult, ImportedPostDraft, PreviewStoredPost, SaveContentImportInput } from "../types/contentImport";
 
 const previewPostsKey = "socialflow.preview.posts.v1";
+const pendingGeneratedContentKey = "socialflow.pendingGeneratedContent.v1";
+
+export interface PendingGeneratedContent {
+  rawContent: string;
+  clientId: string;
+  aiPromptId?: string;
+}
+
+export function stageGeneratedContent(input: PendingGeneratedContent): void {
+  sessionStorage.setItem(pendingGeneratedContentKey, JSON.stringify(input));
+}
+
+export function takeStagedGeneratedContent(): PendingGeneratedContent | undefined {
+  const value = sessionStorage.getItem(pendingGeneratedContentKey);
+  if (!value) return undefined;
+  sessionStorage.removeItem(pendingGeneratedContentKey);
+  try {
+    return JSON.parse(value) as PendingGeneratedContent;
+  } catch {
+    return undefined;
+  }
+}
 
 function isDesktopRuntime(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;

@@ -17,13 +17,15 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { buildChatGptPrompt } from "../ai/promptBuilder";
 import { listAiRecommendations } from "../services/analytics";
 import { manualChatGptProvider } from "../ai/manualProvider";
 import { getClient, listClients, platformLabels } from "../services/clients";
 import { listAiCampaignOptions, listAiPromptHistory, markAiPromptCopied, saveAiPrompt } from "../services/aiWorkspace";
 import { generateWithLocalAi, getLocalAiStatus } from "../services/localAi";
+import { getCodexStatus, stageCodexCreativeRequest, type CodexGenerationResult, type CodexStatus } from "../services/chatgpt";
+import { stageGeneratedContent } from "../services/contentImport";
 import type { ClientDetail, ClientSummary, PlatformKey } from "../types/client";
 import type { AiPromptHistoryItem, AiWorkspaceInput, CampaignOption, ManualAiWorkflow, PromptTemplateType } from "../types/aiWorkspace";
 import type { LocalAiResult, LocalAiStatus } from "../services/localAi";
@@ -86,6 +88,7 @@ function templateLabel(type: PromptTemplateType): string {
 
 export function AiWorkspacePage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [clients, setClients] = useState<ClientSummary[]>([]);
   const [client, setClient] = useState<ClientDetail>();
   const [campaigns, setCampaigns] = useState<CampaignOption[]>([]);
@@ -102,6 +105,8 @@ export function AiWorkspacePage() {
   const [localModel, setLocalModel] = useState("");
   const [localResult, setLocalResult] = useState<LocalAiResult>();
   const [localGenerating, setLocalGenerating] = useState(false);
+  const [codexStatus, setCodexStatus] = useState<CodexStatus>();
+  const [codexResult, setCodexResult] = useState<CodexGenerationResult>();
 
   useEffect(() => {
     Promise.all([
@@ -123,6 +128,12 @@ export function AiWorkspacePage() {
       .catch((reason) =>
         setError(reason instanceof Error ? reason.message : String(reason)),
       );
+  }, []);
+
+  useEffect(() => {
+    getCodexStatus()
+      .then(setCodexStatus)
+      .catch((reason) => setError(reason instanceof Error ? reason.message : String(reason)));
   }, []);
 
   const selectedCampaign = useMemo(
@@ -187,6 +198,7 @@ export function AiWorkspacePage() {
     setError("");
     setNotice("");
     setLocalResult(undefined);
+    setCodexResult(undefined);
     if (!client) return setError("Select a client so the Brand Profile can be included.");
     if (!input.goal.trim()) return setError("Enter the content goal.");
     if (!input.topic.trim()) return setError("Enter the topic or campaign idea.");
@@ -215,7 +227,16 @@ export function AiWorkspacePage() {
       });
       setGenerated({ id, workflow, clientName: client.clientName });
       setHistory(await listAiPromptHistory());
-      setNotice("Prompt generated and saved locally");
+      const videoTypes = new Set(["reel", "short_video", "long_video"]);
+      const imageTypes = new Set(["image_post", "carousel"]);
+      stageCodexCreativeRequest({
+        prompt,
+        clientName: client.clientName,
+        goal: input.goal.trim(),
+        topic: input.topic.trim(),
+        suggestedMode: videoTypes.has(input.contentType) ? "video" : imageTypes.has(input.contentType) ? "image" : "both",
+      });
+      navigate("/chatgpt");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
@@ -266,22 +287,38 @@ export function AiWorkspacePage() {
     }
   };
 
+  const reviewCodexResult = () => {
+    if (!generated || !codexResult || !client) return;
+    stageGeneratedContent({
+      rawContent: codexResult.content,
+      clientId: client.id,
+      aiPromptId: generated.id,
+    });
+    navigate("/ai-workspace/import");
+  };
+
   return (
     <div className="ai-workspace-page">
       <section className="ai-workspace-hero">
         <div className="ai-hero-icon"><Sparkles size={22} /></div>
         <div>
-          <span className="eyebrow">MANUAL AI PROVIDER · NO API</span>
-          <h2>Turn local Brand Memory into structured ChatGPT work</h2>
-          <p>The app prepares the brief and response format. You stay in control of what is sent to ChatGPT and what returns to this Mac.</p>
+          <span className="eyebrow">CONNECTED CONTENT ENGINE · NO API KEY</span>
+          <h2>Turn local Brand Memory into finished social content</h2>
+          <p>When ChatGPT is connected, SocialFlow sends the structured brief to the official Codex client and returns the result here automatically.</p>
         </div>
-        <div className="ai-hero-actions"><div className="ai-privacy-badge"><ShieldCheck size={15} /><span><strong>No AI key</strong><small>No silent AI calls</small></span></div><Link to="/ai-workspace/import"><ClipboardPaste size={14} /> Import Result</Link></div>
+        <div className="ai-hero-actions"><div className="ai-privacy-badge"><ShieldCheck size={15} /><span><strong>No API key</strong><small>{codexStatus?.authenticated ? "ChatGPT connected" : "Manual fallback available"}</small></span></div><Link to="/chatgpt"><Bot size={14} /> {codexStatus?.authenticated ? "Codex Connected" : "Connect ChatGPT"}</Link></div>
       </section>
 
-      <section className="ai-workflow-strip" aria-label="Manual ChatGPT workflow">
-        {["Configure brief", "Generate prompt", "Copy to ChatGPT", "Import in Phase 4"].map((step, index) => (
+      <section className="ai-workflow-strip" aria-label="Connected content workflow">
+        {["Configure brief", "Generate with Codex", "Review content", "Save local drafts"].map((step, index) => (
           <div key={step}><b>{index + 1}</b><span>{step}</span>{index < 3 && <i>→</i>}</div>
         ))}
+      </section>
+
+      <section className={`codex-ai-status${codexStatus?.authenticated ? " ready" : ""}`}>
+        {codexStatus?.authenticated ? <Check size={18} /> : <Sparkles size={18} />}
+        <div><strong>{codexStatus?.authenticated ? "ChatGPT subscription connected" : "ChatGPT connection optional"}</strong><small>{codexStatus?.detail ?? "Checking the official Codex client…"}</small></div>
+        <Link to="/chatgpt">{codexStatus?.authenticated ? "Manage connection" : "Connect ChatGPT"}</Link>
       </section>
 
       <section className={`local-ai-status${localAi?.running && localAi.models.length ? " ready" : ""}`}>
@@ -336,15 +373,15 @@ export function AiWorkspacePage() {
             <label className="ai-field"><span>End date</span><input aria-label="Prompt end date" type="date" value={input.endDate} onChange={(event) => setInput((current) => ({ ...current, endDate: event.target.value }))} /></label>
           </div>
 
-          <footer className="ai-config-footer"><span><ShieldCheck size={14} /> Saves prompt history locally</span><button type="button" className="ai-generate-button" disabled={generating || loading || clientLoading} onClick={() => void generatePrompt()}>{generating ? <><LoaderCircle size={15} className="spin" /> Generating…</> : <><Sparkles size={15} /> Generate ChatGPT Prompt</>}</button></footer>
+          <footer className="ai-config-footer"><span><ShieldCheck size={14} /> Saves prompt history locally</span><button type="button" className="ai-generate-button" disabled={generating || loading || clientLoading} onClick={() => void generatePrompt()}>{generating ? <><LoaderCircle size={15} className="spin" /> Preparing brief…</> : <><Sparkles size={15} /> Generate Content</>}</button></footer>
         </section>
 
         <section className="ai-preview-panel panel">
-          <header className="ai-panel-header"><div><span>STRUCTURED OUTPUT</span><h3>ChatGPT prompt preview</h3><p>Nothing is sent automatically.</p></div><FileJson size={20} /></header>
+          <header className="ai-panel-header"><div><span>STRUCTURED OUTPUT</span><h3>{codexResult ? "Generated content" : "Content brief preview"}</h3><p>{codexStatus?.authenticated ? "Sent only when you press Generate Content." : "Connect ChatGPT for automatic generation."}</p></div><FileJson size={20} /></header>
           {!generated ? <div className="ai-prompt-empty"><div><Clipboard size={24} /></div><h3>Your generated prompt will appear here</h3><p>Select a client, define the brief and choose platforms. The prompt will include Brand Memory and a strict JSON response format.</p><ul><li><Check size={12} /> Brand voice and audience</li><li><Check size={12} /> Platform-native requirements</li><li><Check size={12} /> Import-ready JSON format</li></ul></div> : <>
             <div className="ai-prompt-actions"><div><span>{generated.workflow.outputFormat}</span><small>{generated.workflow.prompt.length.toLocaleString()} characters · manual workflow</small></div><button type="button" className="secondary-button" onClick={downloadPrompt}><Download size={14} /> Export</button><button type="button" className="copy-prompt-button" onClick={() => void copyPrompt(generated.id, generated.workflow.prompt)}>{copiedId === generated.id ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy Prompt</>}</button></div>
             <pre className="ai-prompt-preview" aria-label="Generated ChatGPT prompt">{generated.workflow.prompt}</pre>
-            <div className="manual-workflow-card"><Info size={16} /><div><strong>Next step: use ChatGPT manually</strong><ol>{generated.workflow.steps.map((step) => <li key={step}>{step}</li>)}</ol></div></div>
+            {codexResult ? <article className="codex-ai-result"><header><strong>Generated with your ChatGPT subscription</strong><span>{Math.max(1, Math.round(codexResult.elapsedMs / 1000))}s</span></header><pre>{codexResult.content}</pre><footer><button type="button" onClick={() => void copyText(codexResult.content)}><Copy size={12} /> Copy result</button><button type="button" className="review-import-button" onClick={reviewCodexResult}><ClipboardPaste size={12} /> Review &amp; import drafts</button></footer></article> : <div className="manual-workflow-card"><Info size={16} /><div><strong>{codexStatus?.authenticated ? "Generation is ready" : "Manual fallback"}</strong><ol>{generated.workflow.steps.map((step) => <li key={step}>{step}</li>)}</ol></div></div>}
             {localResult && <article className="local-ai-result"><header><strong>Generated locally with {localResult.model}</strong><span>No AI API key</span></header><pre>{localResult.content}</pre><footer><button type="button" onClick={() => void copyText(localResult.content)}><Copy size={12} /> Copy result</button><Link to="/ai-workspace/import"><ClipboardPaste size={12} /> Open importer</Link></footer></article>}
           </>}
         </section>

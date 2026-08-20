@@ -19,6 +19,7 @@ import { ContentPlansPage } from "./pages/ContentPlansPage";
 import { ActivityPage } from "./pages/ActivityPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { ReleaseReadinessPage } from "./pages/ReleaseReadinessPage";
+import { ChatGptPage } from "./pages/ChatGptPage";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="clients/:clientId" element={<ClientDetailPage />} />
         <Route path="ai-workspace" element={<AiWorkspacePage />} />
         <Route path="ai-workspace/import" element={<ContentImporterPage />} />
+        <Route path="chatgpt" element={<ChatGptPage />} />
         <Route path="create" element={<ContentStudioPage />} />
         <Route path="campaigns" element={<CampaignsPage />} />
         <Route path="plans" element={<ContentPlansPage />} />

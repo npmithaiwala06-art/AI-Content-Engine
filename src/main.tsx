@@ -10,6 +10,8 @@ import "./styles/local-ai.css";
 import "./styles/official-access.css";
 import "./styles/readiness.css";
 import "./styles/video-preview.css";
+import "./styles/chatgpt.css";
+import "./styles/app-updater.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

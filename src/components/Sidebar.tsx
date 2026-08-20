@@ -18,6 +18,7 @@ import {
   Users,
   Wifi,
   ClipboardCheck,
+  MessageSquareText,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Logo } from "./Logo";
@@ -27,6 +28,7 @@ const primaryNavigation = [
   { label: "Dashboard", to: "/", icon: LayoutDashboard },
   { label: "Clients", to: "/clients", icon: Users },
   { label: "AI Workspace", to: "/ai-workspace", icon: Sparkles, accent: true },
+  { label: "ChatGPT", to: "/chatgpt", icon: MessageSquareText, accent: true },
   { label: "Create Content", to: "/create", icon: Plus },
   { label: "Campaigns", to: "/campaigns", icon: Megaphone },
   { label: "Content Plans", to: "/plans", icon: FileStack },

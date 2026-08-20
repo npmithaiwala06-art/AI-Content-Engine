@@ -2,7 +2,7 @@ import { AlertTriangle, ArrowLeft, Check, CheckCircle2, ClipboardPaste, FileJson
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ContentParseError, parseChatGptContent } from "../ai/contentParser";
-import { checkContentImportDuplicates, saveContentImport } from "../services/contentImport";
+import { checkContentImportDuplicates, saveContentImport, takeStagedGeneratedContent } from "../services/contentImport";
 import { listClients, platformLabels } from "../services/clients";
 import type { ClientSummary, PlatformKey } from "../types/client";
 import type { ContentImportSaveResult, ImportedPlatformDraft, ImportedPostDraft, ParsedContentImport } from "../types/contentImport";
@@ -35,9 +35,10 @@ function platformContentLabel(version: ImportedPlatformDraft): string {
 }
 
 export function ContentImporterPage() {
+  const [staged] = useState(() => takeStagedGeneratedContent());
   const [clients, setClients] = useState<ClientSummary[]>([]);
-  const [clientId, setClientId] = useState("");
-  const [raw, setRaw] = useState("");
+  const [clientId, setClientId] = useState(staged?.clientId ?? "");
+  const [raw, setRaw] = useState(staged?.rawContent ?? "");
   const [parsed, setParsed] = useState<ParsedContentImport>();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [duplicates, setDuplicates] = useState<Set<string>>(new Set());
@@ -95,7 +96,7 @@ export function ContentImporterPage() {
     if (!parsed || !clientId || selectedCount === 0) return setError("Select at least one non-duplicate post.");
     setSaving(true); setError("");
     try {
-      const saveResult = await saveContentImport({ clientId, rawContent: raw, parsedPostCount: parsed.posts.length, posts: parsed.posts.filter((post) => selected.has(post.tempId) && !duplicates.has(post.tempId)) });
+      const saveResult = await saveContentImport({ clientId, aiPromptId: staged?.aiPromptId, rawContent: raw, parsedPostCount: parsed.posts.length, posts: parsed.posts.filter((post) => selected.has(post.tempId) && !duplicates.has(post.tempId)) });
       setResult(saveResult);
     } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setSaving(false); }
