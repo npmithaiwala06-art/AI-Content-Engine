@@ -65,7 +65,7 @@ export function DashboardPage() {
     { label: "Monthly reach", value: summary.monthlyReach, icon: BarChart3, tone: "tone-sky", hint: "Stored analytics" },
     { label: "Monthly engagement", value: summary.monthlyEngagement, icon: Sparkles, tone: "tone-violet", hint: "Likes, comments, shares & saves" },
   ];
-  const scheduleRows = previewMode ? scheduledPosts : summary.todaySchedule.map((post) => ({ id: post.id, client: post.client, initials: post.client.slice(0, 2).toUpperCase(), platform: ({ instagram: "Instagram", facebook: "Facebook", linkedin: "LinkedIn", youtube: "YouTube" } as const)[post.platform as "instagram" | "facebook" | "linkedin" | "youtube"] ?? "Instagram", title: post.title, time: new Date(post.scheduledFor).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), status: post.status.replaceAll("_", " ").replace(/\b\w/g, (value) => value.toUpperCase()) as "Scheduled", accent: "#6d4bd2" }));
+  const scheduleRows = previewMode ? scheduledPosts : summary.todaySchedule.map((post) => ({ id: post.id, client: post.client, initials: post.client.slice(0, 2).toUpperCase(), platform: ({ instagram: "Instagram", facebook: "Facebook", twitter: "Twitter", youtube: "YouTube" } as const)[post.platform as "instagram" | "facebook" | "twitter" | "youtube"] ?? "Instagram", title: post.title, time: new Date(post.scheduledFor).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), status: post.status.replaceAll("_", " ").replace(/\b\w/g, (value) => value.toUpperCase()) as "Scheduled", accent: "#6d4bd2" }));
   const recentRows = previewMode ? activityItems : summary.recentActivity.map((item) => ({ id: item.id, kind: (item.action === "published" ? "published" : item.action === "approved" ? "approved" : item.action === "scheduled" ? "scheduled" : "client") as keyof typeof activityIcon, title: item.summary, detail: `${item.clientName ?? "System"} · ${item.action.replaceAll("_", " ")}`, time: new Date(item.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) }));
 
   return (
@@ -84,7 +84,7 @@ export function DashboardPage() {
         <article className="panel performance-panel">
           <div className="panel-header">
             <div><h2>Platform performance</h2><p>Organic reach over the last 7 days</p></div>
-            <div className="chart-legend"><span className="legend-violet">Instagram</span><span className="legend-blue">Facebook</span><span className="legend-sky">LinkedIn</span></div>
+            <div className="chart-legend"><span className="legend-violet">Instagram</span><span className="legend-blue">Facebook</span><span className="legend-sky">Twitter</span></div>
           </div>
           <div className="chart-wrap">
             <ResponsiveContainer width="100%" height="100%">
@@ -99,7 +99,7 @@ export function DashboardPage() {
                 <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e6e8ee", boxShadow: "0 10px 30px rgba(30, 27, 75, .1)", fontSize: 12 }} />
                 <Area type="monotone" dataKey="instagram" stroke="#7c3aed" strokeWidth={2.4} fill="url(#ig)" />
                 <Area type="monotone" dataKey="facebook" stroke="#2563eb" strokeWidth={2} fill="url(#fb)" />
-                <Area type="monotone" dataKey="linkedin" stroke="#06b6d4" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="twitter" stroke="#06b6d4" strokeWidth={2} fill="transparent" />
               </AreaChart>
             </ResponsiveContainer>
             {!hasAnalytics && <div className="panel-empty"><BarChart3 size={20} /><strong>No performance data yet</strong><span>Analytics will appear after your first posts are published.</span></div>}

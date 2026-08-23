@@ -2,7 +2,7 @@
 
 - A 15-second local worker recovers interrupted jobs, finds due schedules and publishes a bounded queue.
 - SQLite idempotency and unique queue constraints prevent duplicate publishing.
-- Instagram, Facebook, LinkedIn and YouTube have isolated official adapter placeholders; Mock Mode is fully operational.
+- Instagram, Facebook, Twitter and YouTube have isolated official adapter placeholders; Mock Mode is fully operational.
 - Mock accounts support success, one-shot failure, exponential retry, fake external IDs and local publishing logs.
 - Publishing Queue supports retry, cancel and Publish Now. Scheduled and Published views are separate.
 - Success/failure records appear in the in-app notification panel and macOS Notification Center via local `osascript` notifications.

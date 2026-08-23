@@ -46,4 +46,15 @@ describe("Phase 3 AI Workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: /30-day plan/ }));
     expect(screen.getByRole("spinbutton", { name: "Number of posts" })).toHaveValue(30);
   });
+
+  it("offers the three automation modes without replacing the existing ChatGPT workflow", async () => {
+    render(<MemoryRouter initialEntries={["/ai-workspace"]}><App /></MemoryRouter>);
+    await screen.findByRole("button", { name: "Generate Content" });
+    expect(screen.getByRole("combobox", { name: "Automation mode" })).toHaveValue("manual_approval");
+    expect(screen.getByRole("option", { name: "Manual Approval" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Auto Schedule" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Full Autopilot" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start Automation" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Generate Content" })).toBeInTheDocument();
+  });
 });

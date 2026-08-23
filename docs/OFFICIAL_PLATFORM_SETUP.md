@@ -22,7 +22,7 @@ Never enter a social-media password. Access tokens can be removed with **Disconn
 |---|---|---|---|
 | Instagram | Image/Reel container creation and publish | Media insights normalization | Meta must fetch approved media from a public HTTPS URL; a Mac-local path is not reachable by Meta |
 | Facebook | Page text, image and video posts from local files | Post insights normalization | Use a Page access token with Page publishing permissions |
-| LinkedIn | Member/organization text and single-image posts | Social-action counts | The account ID must be a `urn:li:person:…` or `urn:li:organization:…`; LinkedIn video multipart upload is not enabled in 0.3.2 |
+| Twitter | Text, up to four images, one GIF or one video using chunked upload | Likes, replies, reposts, quotes and impressions | Connect the numeric X user ID returned by `GET /2/users/me`; video processing is checked before the post is created |
 | YouTube | Resumable local video upload plus optional thumbnail | Video statistics | The default privacy is **Private**; a refreshable OAuth authorization is recommended for unattended scheduling |
 
 Mock Mode remains available and is still the safest end-to-end test path.
@@ -31,8 +31,9 @@ Mock Mode remains available and is still the safest end-to-end test path.
 
 - Instagram content publishing: <https://developers.facebook.com/docs/instagram-platform/content-publishing>
 - Facebook Pages posts: <https://developers.facebook.com/docs/pages-api/posts>
-- LinkedIn native PKCE authorization: <https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow-native>
-- LinkedIn Posts API: <https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api>
+- X OAuth 2.0 authorization with PKCE: <https://docs.x.com/fundamentals/authentication/oauth-2-0/authorization-code>
+- X post creation: <https://docs.x.com/x-api/posts/manage-tweets/introduction>
+- X media upload: <https://docs.x.com/x-api/media/upload-media>
 - YouTube OAuth: <https://developers.google.com/youtube/v3/guides/authentication>
 - YouTube video upload: <https://developers.google.com/youtube/v3/guides/uploading_a_video>
 

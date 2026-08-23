@@ -112,7 +112,7 @@ fn platform_kind(platform: &str) -> Result<PlatformKind, AppError> {
     match platform {
         "instagram" => Ok(PlatformKind::Instagram),
         "facebook" => Ok(PlatformKind::Facebook),
-        "linkedin" => Ok(PlatformKind::LinkedIn),
+        "twitter" => Ok(PlatformKind::Twitter),
         "youtube" => Ok(PlatformKind::YouTube),
         _ => Err(AppError::Validation(format!("No adapter for {platform}"))),
     }
@@ -434,13 +434,17 @@ pub fn list_queue(database: &Database, status: Option<String>) -> Result<Vec<Que
     rows.collect::<Result<Vec<_>, _>>().map_err(AppError::from)
 }
 pub fn retry_queue_item(database: &Database, queue_id: &str) -> Result<(), AppError> {
-    let connection = database.connection.lock().expect("database lock poisoned");
-    let changed=connection.execute("UPDATE publishing_queue SET status='retrying',next_attempt_at=?2,last_error=NULL,updated_at=?2 WHERE id=?1 AND status='failed'",params![queue_id,Utc::now().to_rfc3339()])?;
+    let now = Utc::now().to_rfc3339();
+    let mut connection = database.connection.lock().expect("database lock poisoned");
+    let transaction = connection.transaction()?;
+    let changed=transaction.execute("UPDATE publishing_queue SET status='retrying',next_attempt_at=?2,last_error=NULL,locked_at=NULL,updated_at=?2 WHERE id=?1 AND status IN ('failed','retrying')",params![queue_id,now])?;
     if changed == 0 {
         return Err(AppError::Validation(
-            "Only failed queue items can be retried".into(),
+            "Only failed or retrying queue items can be retried".into(),
         ));
     }
+    transaction.execute("UPDATE schedules SET status='failed',next_retry_at=?2,locked_at=NULL,updated_at=?2 WHERE id=(SELECT schedule_id FROM publishing_queue WHERE id=?1)",params![queue_id,now])?;
+    transaction.commit()?;
     Ok(())
 }
 pub fn cancel_queue_item(database: &Database, queue_id: &str) -> Result<(), AppError> {
@@ -532,7 +536,21 @@ mod tests {
         let past = (Local::now() - chrono::Duration::minutes(1))
             .format("%Y-%m-%dT%H:%M:%S")
             .to_string();
-        calendar::schedule_post(&database, &post, &past, "Asia/Kolkata").unwrap();
+        let account = social_accounts::connect_mock_account(
+            &database,
+            &client,
+            "instagram",
+            "Selected automation account",
+        )
+        .unwrap();
+        calendar::schedule_post(
+            &database,
+            &post,
+            &past,
+            "Asia/Kolkata",
+            std::collections::HashMap::from([("instagram".into(), account)]),
+        )
+        .unwrap();
         if fail {
             let account = list_social_account_id(&database);
             social_accounts::set_mock_failure(&database, &account, true).unwrap();
@@ -589,6 +607,27 @@ mod tests {
             .as_deref()
             .unwrap()
             .contains("Simulated"));
+    }
+
+    #[test]
+    fn retry_runs_a_transient_mock_failure_immediately() {
+        let (database, post) = scheduled(true);
+        tick(&database).unwrap();
+        let failed_once = list_queue(&database, None).unwrap();
+        assert_eq!(failed_once[0].status, "retrying");
+
+        retry_queue_item(&database, &failed_once[0].id).unwrap();
+        assert_eq!(tick(&database).unwrap(), 1);
+
+        let published = list_queue(&database, Some("published".into())).unwrap();
+        assert_eq!(published.len(), 1);
+        let connection = database.connection.lock().unwrap();
+        let status: String = connection
+            .query_row("SELECT status FROM posts WHERE id=?1", [post], |row| {
+                row.get(0)
+            })
+            .unwrap();
+        assert_eq!(status, "published");
     }
 
     #[test]

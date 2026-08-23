@@ -18,7 +18,7 @@ const saveManual = (posts: PreviewPost[]) => localStorage.setItem(manualKey, JSO
 async function previewPosts(): Promise<PreviewPost[]> {
   const manual = loadManual();
   const imported = listPreviewDraftPosts().map<PreviewPost>((post) => ({
-    id: post.id, clientId: post.clientId, title: post.title, topic: post.topic,
+    id: post.id, clientId: post.clientId, campaignId: post.campaignId, title: post.title, topic: post.topic,
     contentType: post.contentType, goal: post.goal, status: post.status, source: post.source,
     proposedDate: post.scheduledDate ?? "", proposedTime: post.recommendedTime ?? "",
     timezone: post.timezone ?? "Asia/Kolkata", updatedAt: post.createdAt,
@@ -87,4 +87,4 @@ export function buildContentAssistPrompt(kind: "rewrite" | "hashtags" | "cta", c
   return `You are a professional social-media editor.\n\nCLIENT: ${clientName}\nPLATFORM: ${version.platform}\nTITLE: ${post.title}\nTOPIC: ${post.topic}\nGOAL: ${post.goal}\nCONTENT TYPE: ${post.contentType}\nCURRENT HOOK: ${version.hook}\nCURRENT CONTENT: ${version.caption || version.description}\nCURRENT CTA: ${version.cta}\n\nTASK:\n${task}\n\nDo not duplicate another platform's wording. Return only the requested content in clear labelled sections.`;
 }
 
-export const supportedPlatforms: PlatformKey[] = ["instagram", "facebook", "linkedin", "youtube"];
+export const supportedPlatforms: PlatformKey[] = ["instagram", "facebook", "twitter", "youtube"];

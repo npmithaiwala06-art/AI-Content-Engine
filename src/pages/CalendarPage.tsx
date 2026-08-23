@@ -22,6 +22,8 @@ import type { ClientSummary } from "../types/client";
 import type { CalendarItem } from "../types/calendar";
 import type { PostSummary } from "../types/content";
 import { FriendlyTimePicker } from "../components/FriendlyTimePicker";
+import { listSocialAccounts } from "../services/automation";
+import type { SocialAccountRecord } from "../types/automation";
 type View = "month" | "week" | "day";
 const iso = (date: Date) => {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -290,9 +292,15 @@ function ScheduleModal({
   const [timezone, setTimezone] = useState(item?.timezone ?? "Asia/Kolkata");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [accounts, setAccounts] = useState<SocialAccountRecord[]>([]);
+  const [accountIds, setAccountIds] = useState<Record<string, string>>({});
   useEffect(() => {
     listSchedulablePosts(client || undefined).then(setPosts);
+    if (client) listSocialAccounts(client).then(setAccounts);
+    else setAccounts([]);
+    setAccountIds({});
   }, [client]);
+  const selectedPost = posts.find((post) => post.id === postId);
   const save = async () => {
     setBusy(true);
     try {
@@ -300,7 +308,9 @@ function ScheduleModal({
         await reschedulePost(item.postId, `${date}T${time}:00`, timezone);
       else {
         if (!postId) throw new Error("Select an approved post.");
-        await schedulePost(postId, `${date}T${time}:00`, timezone);
+        const missingPlatform = selectedPost?.platforms.find((postPlatform) => !accountIds[postPlatform]);
+        if (missingPlatform) throw new Error(`Select a connected ${platformLabels[missingPlatform]} account.`);
+        await schedulePost(postId, `${date}T${time}:00`, timezone, accountIds);
       }
       onSaved();
     } catch (e) {
@@ -367,6 +377,21 @@ function ScheduleModal({
               {item && <option value={item.postId}>{item.title}</option>}
             </select>
           </label>
+          {!item && selectedPost?.platforms.map((postPlatform) => (
+            <label className="wide" key={postPlatform}>
+              {platformLabels[postPlatform]} publishing account
+              <select
+                aria-label={`${platformLabels[postPlatform]} publishing account`}
+                value={accountIds[postPlatform] ?? ""}
+                onChange={(event) => setAccountIds((current) => ({ ...current, [postPlatform]: event.target.value }))}
+              >
+                <option value="">Select connected account</option>
+                {accounts.filter((account) => account.platform === postPlatform && ["connected", "mock"].includes(account.connectionStatus)).map((account) => (
+                  <option key={account.id} value={account.id}>{account.accountName}</option>
+                ))}
+              </select>
+            </label>
+          ))}
           <label>
             Date
             <input

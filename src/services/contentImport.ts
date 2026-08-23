@@ -7,6 +7,7 @@ const pendingGeneratedContentKey = "socialflow.pendingGeneratedContent.v1";
 export interface PendingGeneratedContent {
   rawContent: string;
   clientId: string;
+  campaignId?: string;
   aiPromptId?: string;
 }
 
@@ -65,7 +66,7 @@ export async function saveContentImport(input: SaveContentImportInput): Promise<
     if (existing.has(importFingerprint)) { duplicateTempIds.push(post.tempId); continue; }
     existing.add(importFingerprint);
     const id = globalThis.crypto?.randomUUID?.() ?? `post-${Date.now()}-${savedPostIds.length}`;
-    stored.unshift({ ...post, id, clientId: input.clientId, status: "draft", source: "chatgpt_import", createdAt: new Date().toISOString(), importFingerprint });
+    stored.unshift({ ...post, id, clientId: input.clientId, campaignId: input.campaignId, status: "draft", source: "chatgpt_import", createdAt: new Date().toISOString(), importFingerprint });
     savedPostIds.push(id);
   }
   localStorage.setItem(previewPostsKey, JSON.stringify(stored));

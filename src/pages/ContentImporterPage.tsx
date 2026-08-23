@@ -25,7 +25,7 @@ const exampleResult = JSON.stringify({
     platforms: {
       instagram: { hook: "Your weekend deserves better coffee ☕", caption: "Slow mornings, fresh brews and your favourite people.", cta: "Visit us this weekend", hashtags: ["#SuratCafe", "#WeekendCoffee"], creative_idea: "A sunlit coffee table", image_prompt: "Warm editorial cafe photograph with specialty coffee" },
       facebook: { hook: "Planning a relaxed weekend?", caption: "Bring a friend and settle in with fresh coffee and brunch favourites.", cta: "Drop in this weekend", post_format: "image" },
-      linkedin: { hook: "Great local brands create reasons to return.", caption: "This weekend, our team is focusing on a warm customer experience and a menu built for unhurried conversations.", cta: "Visit ABC Cafe in Surat", hashtags: ["#LocalBusiness", "#CustomerExperience"] },
+      twitter: { hook: "Great local brands create reasons to return.", caption: "This weekend, our team is focusing on a warm customer experience and a menu built for unhurried conversations.", cta: "Visit ABC Cafe in Surat", hashtags: ["#LocalBusiness", "#CustomerExperience"] },
     },
   }],
 }, null, 2);
@@ -96,7 +96,7 @@ export function ContentImporterPage() {
     if (!parsed || !clientId || selectedCount === 0) return setError("Select at least one non-duplicate post.");
     setSaving(true); setError("");
     try {
-      const saveResult = await saveContentImport({ clientId, aiPromptId: staged?.aiPromptId, rawContent: raw, parsedPostCount: parsed.posts.length, posts: parsed.posts.filter((post) => selected.has(post.tempId) && !duplicates.has(post.tempId)) });
+      const saveResult = await saveContentImport({ clientId, campaignId: staged?.campaignId, aiPromptId: staged?.aiPromptId, rawContent: raw, parsedPostCount: parsed.posts.length, posts: parsed.posts.filter((post) => selected.has(post.tempId) && !duplicates.has(post.tempId)) });
       setResult(saveResult);
     } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setSaving(false); }

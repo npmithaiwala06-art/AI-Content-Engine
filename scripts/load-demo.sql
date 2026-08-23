@@ -20,7 +20,7 @@ INSERT INTO clients (
   '["Local coffee chains","Independent cafes"]',
   '["Food photography","Short reels","Educational carousels"]',
   '"4 posts per week"', 'Asia/Kolkata',
-  '["instagram","facebook","linkedin","youtube"]', 'active',
+  '["instagram","facebook","twitter","youtube"]', 'active',
   '2026-08-17T10:00:00+05:30', '2026-08-17T19:35:00+05:30'
 );
 
@@ -53,7 +53,7 @@ INSERT INTO campaigns (
   'A safe demonstration campaign promoting weekend cafe visits.',
   'Increase weekend walk-ins', '2026-08-17', '2026-08-31', 'active',
   'Students and young professionals in Surat',
-  '["instagram","facebook","linkedin","youtube"]', 5000,
+  '["instagram","facebook","twitter","youtube"]', 5000,
   '2026-08-17T10:10:00+05:30', '2026-08-17T19:35:00+05:30'
 );
 
@@ -73,7 +73,7 @@ INSERT INTO social_accounts (
 ) VALUES
   ('demo-account-instagram','demo-client-abc-cafe','instagram','@abccafe_demo','demo-ig','mock','2026-08-17T19:35:00+05:30','{"fail_next":false}','2026-08-17T10:20:00+05:30','2026-08-17T19:35:00+05:30'),
   ('demo-account-facebook','demo-client-abc-cafe','facebook','ABC Cafe Demo Page','demo-fb','mock','2026-08-17T19:35:00+05:30','{"fail_next":false}','2026-08-17T10:20:00+05:30','2026-08-17T19:35:00+05:30'),
-  ('demo-account-linkedin','demo-client-abc-cafe','linkedin','ABC Cafe Demo Company','demo-li','mock','2026-08-17T19:35:00+05:30','{"fail_next":false}','2026-08-17T10:20:00+05:30','2026-08-17T19:35:00+05:30'),
+  ('demo-account-twitter','demo-client-abc-cafe','twitter','@abccafe_demo','demo-twitter','mock','2026-08-17T19:35:00+05:30','{"fail_next":false}','2026-08-17T10:20:00+05:30','2026-08-17T19:35:00+05:30'),
   ('demo-account-youtube','demo-client-abc-cafe','youtube','ABC Cafe Demo Channel','demo-yt','mock','2026-08-17T19:35:00+05:30','{"fail_next":false}','2026-08-17T10:20:00+05:30','2026-08-17T19:35:00+05:30');
 
 INSERT INTO ai_prompts (
@@ -85,9 +85,9 @@ INSERT INTO ai_prompts (
   'demo-ai-prompt', 'demo-client-abc-cafe', 'demo-campaign-weekend',
   'manual_chatgpt', '7_day', 'Increase weekend visitors',
   'Weekend coffee experience', 'mixed', 'Friendly and energetic',
-  '["instagram","facebook","linkedin","youtube"]', 7,
+  '["instagram","facebook","twitter","youtube"]', 7,
   '2026-08-17', '2026-08-23',
-  'DEMO PROMPT: Create seven platform-specific posts for ABC Cafe. Keep Instagram visual, Facebook conversational, LinkedIn business-focused, and YouTube searchable. Return social_content_v1 JSON.',
+  'DEMO PROMPT: Create seven platform-specific posts for ABC Cafe. Keep Instagram visual, Facebook conversational, Twitter concise and timely, and YouTube searchable. Return social_content_v1 JSON.',
   'social_content_v1', 1, '2026-08-17T11:00:00+05:30',
   '2026-08-17T10:30:00+05:30', '2026-08-17T11:00:00+05:30'
 );
@@ -236,11 +236,11 @@ INSERT INTO post_versions (
   id,post_id,platform_id,social_account_id,hook,caption,cta,hashtags,title,
   description,keywords,creative_idea,image_prompt,platform_metadata,created_at,updated_at
 ) VALUES (
-  'demo-version-draft-li','demo-post-draft','linkedin','demo-account-linkedin',
+  'demo-version-draft-li','demo-post-draft','twitter','demo-account-twitter',
   'The right meeting space can change the conversation.',
   'For founders, freelancers and small teams in Surat, a relaxed coffee meeting can make collaboration feel more natural. ABC Cafe offers a comfortable local setting for the next idea session.',
   'Plan your next coffee meeting','["#SuratBusiness","#CoffeeMeeting","#LocalBusiness"]',
-  'A Better Coffee Meeting','Professional LinkedIn version','["coffee meeting","Surat business"]',
+  'A Better Coffee Meeting','Concise Twitter version','["coffee meeting","Surat business"]',
   'Laptop, notebook and coffee arranged in a quiet cafe corner',
   'Professional editorial photograph of a laptop, notebook and coffee in a bright cafe meeting corner, no logos, no text','{"demo":true}',
   '2026-08-17T13:00:00+05:30','2026-08-17T19:35:00+05:30'

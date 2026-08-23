@@ -4,7 +4,7 @@
 
 - Local post library with search, client and status filters.
 - New and imported draft editing.
-- Independent Instagram, Facebook, LinkedIn and YouTube versions.
+- Independent Instagram, Facebook, Twitter and YouTube versions.
 - Draft save, duplicate, preview, delete and human-review submission.
 - Manual ChatGPT rewrite, hashtag and CTA prompts; no AI API is used.
 - Published and actively publishing posts are protected from editing.

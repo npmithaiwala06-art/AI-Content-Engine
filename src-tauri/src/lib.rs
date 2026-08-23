@@ -322,8 +322,9 @@ fn schedule_post(
     post_id: String,
     scheduled_for: String,
     timezone: String,
+    account_ids: std::collections::HashMap<String, String>,
 ) -> Result<Vec<String>, AppError> {
-    calendar::schedule_post(&database, &post_id, &scheduled_for, &timezone)
+    calendar::schedule_post(&database, &post_id, &scheduled_for, &timezone, account_ids)
 }
 #[tauri::command]
 fn reschedule_post(

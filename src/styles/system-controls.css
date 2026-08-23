@@ -165,6 +165,8 @@
 
 .official-setup-modal > div {
   padding: 16px;
+  max-height: min(680px, 72vh);
+  overflow-y: auto;
 }
 
 .official-setup-modal > div > p {
@@ -172,6 +174,245 @@
   color: #737784;
   font-size: 8px;
   line-height: 1.55;
+}
+
+.simple-social-connect {
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px 12px;
+  border: 1px solid #dce7e3;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #fbfefd, #f2f8f6);
+}
+
+.simple-social-connect-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #376f61, #185b4a);
+  box-shadow: 0 8px 18px rgba(24, 91, 74, .2);
+}
+
+.simple-social-connect-copy h4 {
+  margin: 2px 0 4px;
+  color: #3d4946;
+  font: 700 10px Manrope, sans-serif;
+}
+
+.simple-social-connect-copy p {
+  margin: 0;
+  color: #74807d;
+  font-size: 7px;
+  line-height: 1.55;
+}
+
+.simple-social-steps,
+.password-safety-note,
+.simple-social-connect-button,
+.official-signin-opened,
+.token-location-help,
+.token-setup-button {
+  grid-column: 1 / -1;
+}
+
+.simple-social-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.simple-social-steps span {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #5d6966;
+  border: 1px solid #e0e9e6;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 6.4px;
+  font-weight: 650;
+}
+
+.simple-social-steps b {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border-radius: 50%;
+  background: #4a7b6f;
+  font-size: 6px;
+}
+
+.password-safety-note,
+.official-signin-opened {
+  margin: 0 !important;
+  padding: 9px 10px !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #22705b;
+  border-radius: 8px;
+  background: #eaf8f2 !important;
+}
+
+.password-safety-note span,
+.official-signin-opened span {
+  display: flex;
+  flex-direction: column;
+}
+
+.password-safety-note strong,
+.official-signin-opened strong {
+  color: #35695c !important;
+  font-size: 6.9px !important;
+}
+
+.password-safety-note small,
+.official-signin-opened small {
+  margin-top: 2px;
+  color: #6d8780;
+  font-size: 6.1px;
+  line-height: 1.4;
+}
+
+.simple-social-connect-button {
+  height: 36px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #fff;
+  border: 0;
+  border-radius: 9px;
+  background: #286f5d;
+  font-size: 7.5px;
+  font-weight: 750;
+}
+
+.simple-social-connect-button svg:last-child {
+  margin-left: auto;
+}
+
+.simple-social-connect-button:disabled {
+  opacity: .6;
+}
+
+.official-signin-opened {
+  border: 1px solid #cde6dc;
+}
+
+.token-location-help {
+  margin: 0 !important;
+  padding: 9px 10px !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #6b55a5;
+  border: 1px solid #e1daf4;
+  background: #f8f5ff !important;
+}
+
+.token-location-help span {
+  display: flex;
+  flex-direction: column;
+}
+
+.token-location-help strong {
+  color: #5c4a8f !important;
+  font-size: 6.9px !important;
+}
+
+.token-location-help small {
+  margin-top: 3px;
+  color: #7e749b;
+  font-size: 6.1px;
+  line-height: 1.45;
+}
+
+.token-setup-button {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #5d4a91;
+  border: 1px solid #d9d0ef;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 6.8px;
+  font-weight: 700;
+}
+
+.advanced-connection-toggle {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #626873;
+  border: 1px solid #e2e3e7;
+  border-radius: 9px;
+  background: #fafafd;
+  text-align: left;
+}
+
+.advanced-connection-toggle span {
+  display: flex;
+  flex-direction: column;
+}
+
+.advanced-connection-toggle strong {
+  color: #555a65;
+  font-size: 7px;
+}
+
+.advanced-connection-toggle small {
+  margin-top: 2px;
+  color: #9498a2;
+  font-size: 6px;
+}
+
+.advanced-connection-toggle svg {
+  transition: transform .18s ease;
+}
+
+.advanced-connection-toggle svg.open {
+  transform: rotate(180deg);
+}
+
+.advanced-connection-panel {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid #e4e5e9;
+  border-radius: 9px;
+  background: #fcfcfd;
+}
+
+.advanced-connection-panel > p {
+  margin: 0;
+  color: #777b87;
+  font-size: 6.7px;
+  line-height: 1.55;
+}
+
+.advanced-connection-panel ol {
+  margin: 8px 0;
+}
+
+.account-grid footer .account-quick-connect,
+.account-connect .account-quick-connect {
+  color: #fff;
+  border-color: #286f5d;
+  background: #286f5d;
 }
 
 .official-setup-modal ol {

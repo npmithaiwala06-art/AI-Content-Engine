@@ -43,7 +43,7 @@ clients 1──* content_imports
 clients 1──* activity_logs
 ```
 
-`posts` stores the shared idea and lifecycle; `post_versions` stores independent Instagram, Facebook, LinkedIn and YouTube copy. Approval records are append-only decisions. Schedules and queue records survive application restarts.
+`posts` stores the shared idea and lifecycle; `post_versions` stores independent Instagram, Facebook, Twitter and YouTube copy. Approval records are append-only decisions. Schedules and queue records survive application restarts.
 
 ## State machines
 

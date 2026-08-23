@@ -16,7 +16,7 @@ The complete local product workflow is implemented through the Phase 40 audit:
 - isolated ChatGPT subscription sign-in through the official Codex browser flow; SocialFlow never receives the password or reads raw session credentials
 - optional local Ollama provider detection and generation with installed on-device models; manual ChatGPT remains available
 - validated `social_content_v1` importer with preview and duplicate prevention
-- platform-specific Content Studio for Instagram, Facebook, LinkedIn and YouTube
+- platform-specific Content Studio for Instagram, Facebook, Twitter and YouTube
 - local Media Library with upload, preview, search, tags and per-platform post attachments
 - mandatory approval history, rejection reasons and scheduling guard
 - real attached-media previews and explicit CTA review inside the approval queue
@@ -30,7 +30,7 @@ The complete local product workflow is implemented through the Phase 40 audit:
 - campaigns, bulk content plans, universal search and activity audit
 - local database/media/full backup, validated restart-safe restore and first-run onboarding
 - macOS Keychain-backed official account connection, validation and token removal
-- official adapter dispatch for Facebook Page text/image/video, LinkedIn text/image, YouTube video/thumbnail and Instagram public-URL media publishing
+- official adapter dispatch for Facebook Page text/image/video, Twitter text/image/GIF/video, YouTube video/thumbnail and Instagram public-URL media publishing
 - separate connected-platform analytics collection and local normalization
 - production `.app` build configuration and ad-hoc signing for this Mac
 - single-instance protection that restores and focuses the existing window on repeated launches

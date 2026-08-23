@@ -3,6 +3,8 @@ import {
   Check,
   Clapperboard,
   Copy,
+  Download,
+  Eye,
   Image,
   KeyRound,
   Layers3,
@@ -16,8 +18,10 @@ import {
   Sparkles,
   Video,
   WandSparkles,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { buildMediaCreativePrompt } from "../ai/mediaCreativePrompt";
 import {
   connectCodex,
   disconnectCodex,
@@ -28,36 +32,19 @@ import {
   type CodexGenerationResult,
   type CodexStatus,
 } from "../services/chatgpt";
+import {
+  parseCreativePackage,
+  releaseGeneratedMedia,
+  renderCreativeMedia,
+  type GeneratedCreativeMedia,
+} from "../services/localCreativeRenderer";
+import "../styles/local-creative-media.css";
 
 const creativeModes: Array<{ mode: CodexCreativeMode; title: string; description: string; icon: typeof Image }> = [
-  { mode: "image", title: "Create image", description: "Ad visual, copy and image-generation prompt", icon: Image },
-  { mode: "video", title: "Create video", description: "Script, storyboard, voiceover and video prompt", icon: Clapperboard },
-  { mode: "both", title: "Image + video", description: "One coordinated campaign for both formats", icon: Layers3 },
+  { mode: "image", title: "Create image", description: "Rendered advertising image", icon: Image },
+  { mode: "video", title: "Create video", description: "Playable vertical motion video", icon: Clapperboard },
+  { mode: "both", title: "Image + video", description: "Rendered image and video campaign", icon: Layers3 },
 ];
-
-function creativeInstructions(mode: CodexCreativeMode): string {
-  const shared = [
-    "Act as SocialFlow's senior advertising creative director and direct-response social strategist.",
-    "Create a polished, conversion-focused advertisement from the supplied Brand Memory and campaign brief.",
-    "Make all reasonable creative decisions yourself. Do not ask follow-up questions.",
-    "Use a scroll-stopping hook, a clear benefit, a credible reason to act and one strong CTA.",
-    "Never invent prices, discounts, testimonials, results, awards or product claims not present in the brief.",
-    "Make the concept visually distinctive and practical to produce. Adapt it to every requested platform.",
-  ];
-  const image = [
-    "IMAGE DELIVERABLE: Return an advertisement-ready image creative package.",
-    "Include the final headline, optional subheadline, CTA label, overlay text, detailed image-generation prompt, composition, subject, setting, lighting, colour direction, typography direction, negative constraints and platform sizes.",
-    "Keep overlay text short enough to remain readable on a mobile feed.",
-  ];
-  const video = [
-    "VIDEO DELIVERABLE: Return an advertisement-ready video production package.",
-    "Include duration, aspect ratios, opening hook, timed scene-by-scene storyboard, camera/action direction, voiceover, on-screen text, transitions, music/sound direction, closing CTA, thumbnail concept and one detailed video-generation prompt.",
-    "Design the first two seconds to stop scrolling and make every shot feasible for a vertical social ad.",
-    "This is a production package, not a claim that an MP4 was rendered.",
-  ];
-  const selected = mode === "image" ? image : mode === "video" ? video : [...image, ...video, "Make the image and video feel like one recognisable campaign."];
-  return [...shared, ...selected, "Return the complete deliverable directly with clear headings. Do not include process commentary."].join("\n");
-}
 
 const starterPrompts = [
   {
@@ -88,7 +75,7 @@ const starterPrompts = [
     title: "Repurpose content",
     description: "Adapt one source into posts for several social platforms.",
     icon: WandSparkles,
-    prompt: "Repurpose the following source into distinct Instagram, Facebook, LinkedIn and YouTube content: ",
+    prompt: "Repurpose the following source into distinct Instagram, Facebook, Twitter and YouTube content: ",
   },
 ];
 
@@ -107,6 +94,9 @@ export function ChatGptPage() {
   const [request, setRequest] = useState("");
   const [creativeMode, setCreativeMode] = useState<CodexCreativeMode>("image");
   const [result, setResult] = useState<CodexGenerationResult>();
+  const [media, setMedia] = useState<GeneratedCreativeMedia[]>([]);
+  const [viewingMedia, setViewingMedia] = useState<GeneratedCreativeMedia>();
+  const [mediaProgress, setMediaProgress] = useState("");
   const [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -140,6 +130,8 @@ export function ChatGptPage() {
     return () => window.clearInterval(timer);
   }, [status.loginInProgress]);
 
+  useEffect(() => () => releaseGeneratedMedia(media), [media]);
+
   const connect = async () => {
     setBusy("connect");
     setError("");
@@ -168,6 +160,7 @@ export function ChatGptPage() {
       await disconnectCodex();
       await refreshStatus();
       setResult(undefined);
+      setMedia([]);
       setNotice("The local Codex connection was removed.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -185,18 +178,21 @@ export function ChatGptPage() {
     setError("");
     setNotice("");
     setResult(undefined);
+    setMedia([]);
+    setMediaProgress("Codex is turning the brief into a media creative…");
     try {
-      const generated = await generateWithCodex([
-        creativeInstructions(creativeMode),
-        "Do not run shell commands, edit files, or inspect the computer. Return only the requested social-media work.",
-        "",
-        request.trim(),
-      ].join("\n"));
+      const sourceBrief = request.trim();
+      const generated = await generateWithCodex(buildMediaCreativePrompt(creativeMode, sourceBrief));
       setResult(generated);
-      setNotice("Content generated inside SocialFlow with your connected Codex allowance.");
+      const creative = parseCreativePackage(generated.content, sourceBrief);
+      const generatedMedia = await renderCreativeMedia(creative, creativeMode, setMediaProgress);
+      setMedia(generatedMedia);
+      const outputLabel = creativeMode === "both" ? "image and video" : creativeMode;
+      setNotice(`Your ${outputLabel} advertisement is ready inside SocialFlow.`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
+      setMediaProgress("");
       setBusy(null);
     }
   };
@@ -206,6 +202,16 @@ export function ChatGptPage() {
     await navigator.clipboard.writeText(result.content);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  const downloadMedia = (item: GeneratedCreativeMedia) => {
+    const link = document.createElement("a");
+    link.href = item.url;
+    link.download = item.fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setNotice(`${item.kind === "image" ? "Image" : "Video"} saved to your Downloads folder.`);
   };
 
   return (
@@ -252,15 +258,37 @@ export function ChatGptPage() {
                 </button>
               ))}
             </div>
-            <small>Codex creates the complete ad concept automatically. Video output is a production-ready script and storyboard; rendering an MP4 requires a separate video renderer.</small>
+            <small>Codex creates the creative direction, then SocialFlow shows the image or video as a temporary preview without saving it to your Mac.</small>
           </fieldset>
           <footer>
-            <span>{status.authenticated ? "Uses your connected Codex allowance" : "Connect ChatGPT before generating"}</span>
+            <span>{mediaProgress || (status.authenticated ? "Uses your connected Codex allowance" : "Connect ChatGPT before generating")}</span>
             <button type="button" className="chatgpt-primary" onClick={() => void generate()} disabled={!status.authenticated || busy !== null || !request.trim()}>
               {busy === "generate" ? <LoaderCircle className="spin" size={13} /> : <Sparkles size={13} />}
               {busy === "generate" ? "Creating…" : "Create with Codex"}
             </button>
           </footer>
+          {mediaProgress && <div className="codex-media-progress" role="status"><LoaderCircle className="spin" size={15} />{mediaProgress}</div>}
+          {media.length > 0 && (
+            <section className="codex-media-gallery" aria-label="Generated creative media">
+              <header><div><strong>Finished media preview</strong><small>Created automatically from the AI Workspace brief</small></div><span>NOT SAVED TO DISK</span></header>
+              <div className="codex-media-grid">
+                {media.map((item) => (
+                  <article className={`codex-media-card ${item.kind}`} key={item.url}>
+                    {item.kind === "image"
+                      ? <img src={item.url} alt="Generated SocialFlow advertisement" />
+                      : <video src={item.url} aria-label="Generated SocialFlow advertisement video" controls autoPlay muted loop playsInline preload="auto" />}
+                    <footer>
+                      <span><strong>{item.kind === "image" ? "Advertisement image" : "Vertical advertisement video"}</strong><small>{item.mimeType}</small></span>
+                      <div className="codex-media-actions">
+                        <button type="button" onClick={() => setViewingMedia(item)} aria-label={`View ${item.kind}`}><Eye size={12} /> View</button>
+                        <button type="button" onClick={() => downloadMedia(item)} aria-label={`Download ${item.kind}`}><Download size={12} /> Download</button>
+                      </div>
+                    </footer>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
           {result && <article className="codex-result"><header><strong>Generated in SocialFlow</strong><small>{Math.max(1, Math.round(result.elapsedMs / 1000))}s · {result.model}</small></header><pre>{result.content}</pre><button type="button" onClick={() => void copyResult()}>{copied ? <Check size={12} /> : <Copy size={12} />}{copied ? "Copied" : "Copy result"}</button></article>}
         </section>
 
@@ -290,6 +318,25 @@ export function ChatGptPage() {
           ))}
         </div>
       </section>
+      {viewingMedia && (
+        <div className="codex-media-viewer-backdrop" role="dialog" aria-modal="true" aria-label={`${viewingMedia.kind} preview`} onClick={() => setViewingMedia(undefined)}>
+          <section className={`codex-media-viewer ${viewingMedia.kind}`} onClick={(event) => event.stopPropagation()}>
+            <header>
+              <span><strong>{viewingMedia.kind === "image" ? "Advertisement image" : "Vertical advertisement video"}</strong><small>Review before downloading or publishing</small></span>
+              <button type="button" aria-label="Close media viewer" onClick={() => setViewingMedia(undefined)}><X size={17} /></button>
+            </header>
+            <div>
+              {viewingMedia.kind === "image"
+                ? <img src={viewingMedia.url} alt="Full-size generated SocialFlow advertisement" />
+                : <video src={viewingMedia.url} aria-label="Full-size generated SocialFlow advertisement video" controls playsInline preload="auto" />}
+            </div>
+            <footer>
+              <span>This preview remains temporary until you download it.</span>
+              <button type="button" onClick={() => downloadMedia(viewingMedia)}><Download size={13} /> Download {viewingMedia.kind}</button>
+            </footer>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

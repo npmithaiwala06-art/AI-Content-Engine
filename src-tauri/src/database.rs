@@ -19,6 +19,7 @@ const AUTOMATION_MIGRATION: &str = include_str!("../migrations/007_automation_en
 const ANALYTICS_MIGRATION: &str = include_str!("../migrations/008_analytics_learning.sql");
 const REPORTS_MIGRATION: &str = include_str!("../migrations/009_reports_export.sql");
 const CAMPAIGNS_MIGRATION: &str = include_str!("../migrations/010_campaigns_plans.sql");
+const TWITTER_MIGRATION: &str = include_str!("../migrations/011_replace_linkedin_with_twitter.sql");
 
 pub struct Database {
     pub(crate) connection: Mutex<Connection>,
@@ -70,7 +71,7 @@ pub struct DashboardPerformance {
     pub day: String,
     pub instagram: i64,
     pub facebook: i64,
-    pub linkedin: i64,
+    pub twitter: i64,
     pub youtube: i64,
 }
 
@@ -154,13 +155,13 @@ impl Database {
                 day,
                 instagram: 0,
                 facebook: 0,
-                linkedin: 0,
+                twitter: 0,
                 youtube: 0,
             });
             match platform.as_str() {
                 "instagram" => entry.instagram = reach,
                 "facebook" => entry.facebook = reach,
-                "linkedin" => entry.linkedin = reach,
+                "twitter" => entry.twitter = reach,
                 "youtube" => entry.youtube = reach,
                 _ => {}
             }
@@ -209,6 +210,7 @@ pub(crate) fn apply_migrations(connection: &Connection) -> Result<(), rusqlite::
         (8, ANALYTICS_MIGRATION),
         (9, REPORTS_MIGRATION),
         (10, CAMPAIGNS_MIGRATION),
+        (11, TWITTER_MIGRATION),
     ] {
         if current_version.unwrap_or(0) >= version {
             continue;
@@ -251,7 +253,7 @@ mod tests {
                 row.get(0)
             })
             .unwrap();
-        assert_eq!(version, 10);
+        assert_eq!(version, 11);
 
         let ai_prompts_table: i64 = connection
             .query_row(
@@ -270,6 +272,24 @@ mod tests {
             )
             .unwrap();
         assert_eq!(imports_table, 1);
+
+        let twitter_platform: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM platforms WHERE id='twitter' AND adapter_key='twitter' AND is_enabled=1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(twitter_platform, 1);
+
+        let removed_platforms: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM platforms WHERE id IN ('linkedin', 'x')",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(removed_platforms, 0);
     }
 
     #[test]

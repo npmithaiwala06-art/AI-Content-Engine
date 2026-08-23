@@ -467,7 +467,7 @@ mod tests {
         let platforms = vec![
             serde_json::json!({"platform":"instagram","reach":18400,"engagementRate":8.9}),
             serde_json::json!({"platform":"facebook","reach":9200,"engagementRate":4.7}),
-            serde_json::json!({"platform":"linkedin","reach":6800,"engagementRate":6.2}),
+            serde_json::json!({"platform":"twitter","reach":6800,"engagementRate":6.2}),
             serde_json::json!({"platform":"youtube","reach":12100,"engagementRate":7.4}),
         ];
         let pdf = build_pdf(PdfReportData {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use chrono::Utc;
 use rusqlite::{params, OptionalExtension};
 use serde::Serialize;
@@ -67,6 +69,7 @@ pub fn schedule_post(
     post_id: &str,
     scheduled_for: &str,
     timezone: &str,
+    account_ids: HashMap<String, String>,
 ) -> Result<Vec<String>, AppError> {
     if scheduled_for.len() < 16 {
         return Err(AppError::Validation("Choose a valid date and time".into()));
@@ -99,8 +102,21 @@ pub fn schedule_post(
     }
     let mut ids = Vec::new();
     for (version_id, platform) in versions {
-        let account_id = format!("mock-{client_id}-{platform}");
-        tx.execute("INSERT OR IGNORE INTO social_accounts (id,client_id,platform_id,account_name,external_account_id,connection_status,settings,created_at,updated_at) VALUES (?1,?2,?3,?4,?1,'mock','{\"mode\":\"mock\"}',?5,?5)",params![account_id,client_id,platform,format!("{} Mock",platform),now])?;
+        let account_id = account_ids.get(&platform).ok_or_else(|| {
+            AppError::Validation(format!(
+                "Select a connected {platform} account before scheduling"
+            ))
+        })?;
+        let valid_account: bool = tx.query_row(
+            "SELECT EXISTS(SELECT 1 FROM social_accounts WHERE id=?1 AND client_id=?2 AND platform_id=?3 AND connection_status IN('connected','mock'))",
+            params![account_id, client_id, platform],
+            |row| row.get(0),
+        )?;
+        if !valid_account {
+            return Err(AppError::Validation(format!(
+                "The selected {platform} account is disconnected or belongs to another client"
+            )));
+        }
         tx.execute("DELETE FROM schedules WHERE post_version_id=?1 AND social_account_id=?2 AND scheduled_for=?3 AND status='cancelled'",params![version_id,account_id,scheduled_for])?;
         let schedule_id = Uuid::new_v4().to_string();
         let key = format!("{post_id}:{version_id}:{scheduled_for}");
@@ -108,7 +124,7 @@ pub fn schedule_post(
         ids.push(schedule_id);
     }
     tx.execute("UPDATE posts SET status='scheduled',proposed_publish_at=?2,timezone=?3,updated_at=?4 WHERE id=?1",params![post_id,scheduled_for,timezone,now])?;
-    tx.execute("INSERT INTO activity_logs(id,client_id,entity_type,entity_id,action,summary)VALUES(?1,?2,'post',?3,'scheduled','Approved post scheduled locally')",params![Uuid::new_v4().to_string(),client_id,post_id])?;
+    tx.execute("INSERT INTO activity_logs(id,client_id,entity_type,entity_id,action,summary)VALUES(?1,?2,'post',?3,'scheduled','Approved post scheduled for explicitly selected accounts')",params![Uuid::new_v4().to_string(),client_id,post_id])?;
     tx.commit()?;
     drop(connection);
     crate::automation::add_notification(
@@ -171,15 +187,43 @@ mod tests {
             app_data_dir: std::env::temp_dir(),
         };
         let client = clients::create_client(&db, clients::tests::input()).unwrap();
-        let id =
-            content_studio::save_post(&db, None, content_studio::tests::input(client)).unwrap();
-        assert!(schedule_post(&db, &id, "2026-08-22T10:00:00", "Asia/Kolkata").is_err());
+        let id = content_studio::save_post(&db, None, content_studio::tests::input(client.clone()))
+            .unwrap();
+        assert!(schedule_post(
+            &db,
+            &id,
+            "2026-08-22T10:00:00",
+            "Asia/Kolkata",
+            std::collections::HashMap::new()
+        )
+        .is_err());
         content_studio::submit_post_for_review(&db, &id).unwrap();
         approvals::approve_post(&db, &id, "").unwrap();
+        assert!(schedule_post(
+            &db,
+            &id,
+            "2026-08-22T10:00:00",
+            "Asia/Kolkata",
+            std::collections::HashMap::new()
+        )
+        .is_err());
+        let account = crate::social_accounts::connect_mock_account(
+            &db,
+            &client,
+            "instagram",
+            "Selected test account",
+        )
+        .unwrap();
         assert_eq!(
-            schedule_post(&db, &id, "2026-08-22T10:00:00", "Asia/Kolkata")
-                .unwrap()
-                .len(),
+            schedule_post(
+                &db,
+                &id,
+                "2026-08-22T10:00:00",
+                "Asia/Kolkata",
+                std::collections::HashMap::from([("instagram".into(), account)])
+            )
+            .unwrap()
+            .len(),
             1
         );
         assert_eq!(

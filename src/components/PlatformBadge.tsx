@@ -1,9 +1,9 @@
-import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 
 const platformMap = {
   Instagram: { Icon: Instagram, className: "platform-instagram" },
   Facebook: { Icon: Facebook, className: "platform-facebook" },
-  LinkedIn: { Icon: Linkedin, className: "platform-linkedin" },
+  Twitter: { Icon: Twitter, className: "platform-twitter" },
   YouTube: { Icon: Youtube, className: "platform-youtube" },
 };
 
@@ -15,4 +15,3 @@ export function PlatformBadge({ platform }: { platform: keyof typeof platformMap
     </span>
   );
 }
-

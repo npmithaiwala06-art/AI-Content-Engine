@@ -19,7 +19,7 @@ Select client and content brief
 
 - Client and optional campaign selection
 - Goal, topic, content type, tone, post count and date range inputs
-- Instagram, Facebook, LinkedIn and YouTube platform selection
+- Instagram, Facebook, Twitter and YouTube platform selection
 - Single-post, 7-day, 15-day, 30-day and campaign templates
 - Automatic Brand Profile memory loading
 - Platform-specific requirements that prohibit identical cross-platform captions

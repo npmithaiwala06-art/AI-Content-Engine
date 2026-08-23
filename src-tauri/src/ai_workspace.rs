@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::{database::Database, error::AppError};
 
 const ALLOWED_TEMPLATES: [&str; 5] = ["single_post", "7_day", "15_day", "30_day", "campaign"];
-const ALLOWED_PLATFORMS: [&str; 4] = ["instagram", "facebook", "linkedin", "youtube"];
+const ALLOWED_PLATFORMS: [&str; 4] = ["instagram", "facebook", "twitter", "youtube"];
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

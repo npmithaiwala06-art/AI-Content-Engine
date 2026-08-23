@@ -1,5 +1,5 @@
 export type ClientStatus = "active" | "paused" | "archived";
-export type PlatformKey = "instagram" | "facebook" | "linkedin" | "youtube";
+export type PlatformKey = "instagram" | "facebook" | "twitter" | "youtube";
 
 export interface ClientInput {
   clientName: string;

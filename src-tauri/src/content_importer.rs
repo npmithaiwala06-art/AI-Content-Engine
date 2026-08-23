@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{database::Database, error::AppError};
 
-const ALLOWED_PLATFORMS: [&str; 4] = ["instagram", "facebook", "linkedin", "youtube"];
+const ALLOWED_PLATFORMS: [&str; 4] = ["instagram", "facebook", "twitter", "youtube"];
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -71,6 +71,7 @@ pub struct ImportPostInput {
 #[serde(rename_all = "camelCase")]
 pub struct SaveContentImportInput {
     pub client_id: String,
+    pub campaign_id: Option<String>,
     pub ai_prompt_id: Option<String>,
     pub raw_content: String,
     pub parsed_post_count: i64,
@@ -254,6 +255,19 @@ pub fn save_content_import(
         }
     }
 
+    if let Some(campaign_id) = input.campaign_id.as_deref() {
+        let belongs: bool = transaction.query_row(
+            "SELECT EXISTS(SELECT 1 FROM campaigns WHERE id=?1 AND client_id=?2 AND archived_at IS NULL)",
+            params![campaign_id, input.client_id],
+            |row| row.get(0),
+        )?;
+        if !belongs {
+            return Err(AppError::Validation(
+                "Campaign does not belong to this client".into(),
+            ));
+        }
+    }
+
     transaction.execute(
         "INSERT INTO content_imports (id, client_id, ai_prompt_id, raw_content, parsed_post_count, status, created_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, ?5, 'parsed', ?6, ?6)",
@@ -274,9 +288,9 @@ pub fn save_content_import(
         let post_id = Uuid::new_v4().to_string();
         let timezone = post.timezone.as_deref().unwrap_or("Asia/Kolkata");
         transaction.execute(
-            "INSERT INTO posts (id, client_id, title, core_idea, content_type, goal, status, source, import_batch_id, import_fingerprint, proposed_publish_at, timezone, created_at, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'draft', 'chatgpt_import', ?7, ?8, ?9, ?10, ?11, ?11)",
-            params![post_id, input.client_id, post.title.trim(), post.topic.trim(), post.content_type.trim(), post.goal.trim(), batch_id, post_fingerprint, proposed_publish_at(&post), timezone, now],
+            "INSERT INTO posts (id, client_id, campaign_id, title, core_idea, content_type, goal, status, source, import_batch_id, import_fingerprint, proposed_publish_at, timezone, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'draft', 'chatgpt_import', ?8, ?9, ?10, ?11, ?12, ?12)",
+            params![post_id, input.client_id, input.campaign_id, post.title.trim(), post.topic.trim(), post.content_type.trim(), post.goal.trim(), batch_id, post_fingerprint, proposed_publish_at(&post), timezone, now],
         )?;
 
         for version in post.platforms {
@@ -378,6 +392,7 @@ mod tests {
             &database,
             SaveContentImportInput {
                 client_id: client_id.clone(),
+                campaign_id: None,
                 ai_prompt_id: None,
                 raw_content: "{\"format_version\":\"social_content_v1\"}".into(),
                 parsed_post_count: 2,

@@ -1,7 +1,7 @@
 pub mod facebook;
 pub mod instagram;
-pub mod linkedin;
 pub mod mock;
+pub mod twitter;
 pub mod youtube;
 
 use serde::{Deserialize, Serialize};
@@ -12,9 +12,8 @@ use serde_json::Value;
 pub enum PlatformKind {
     Instagram,
     Facebook,
-    LinkedIn,
+    Twitter,
     YouTube,
-    X,
     Threads,
     TikTok,
     Pinterest,
@@ -68,7 +67,7 @@ pub fn official_adapter(
             external_account_id,
             settings,
         ))),
-        "linkedin" => Ok(Box::new(linkedin::LinkedInAdapter::new(
+        "twitter" => Ok(Box::new(twitter::TwitterAdapter::new(
             access_token,
             external_account_id,
             settings,
@@ -92,6 +91,8 @@ pub(crate) fn response_error(response: reqwest::blocking::Response) -> String {
         .and_then(|value| {
             value
                 .pointer("/error/message")
+                .or_else(|| value.pointer("/errors/0/detail"))
+                .or_else(|| value.pointer("/errors/0/title"))
                 .or_else(|| value.get("error_description"))
                 .or_else(|| value.get("message"))
                 .and_then(Value::as_str)

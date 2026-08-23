@@ -221,7 +221,7 @@ fn validate(input: &ContentPostInput) -> Result<(), AppError> {
     }
     let mut platforms = std::collections::HashSet::new();
     for version in &input.versions {
-        if !["instagram", "facebook", "linkedin", "youtube"].contains(&version.platform.as_str()) {
+        if !["instagram", "facebook", "twitter", "youtube"].contains(&version.platform.as_str()) {
             return Err(AppError::Validation(format!(
                 "Unsupported platform: {}",
                 version.platform

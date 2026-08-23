@@ -15,14 +15,14 @@ export interface DashboardSummary {
   monthlyEngagement: number;
   todaySchedule: Array<{id:string;client:string;platform:string;title:string;scheduledFor:string;status:string}>;
   recentActivity: Array<{id:string;action:string;summary:string;clientName?:string;createdAt:string}>;
-  performance: Array<{day:string;instagram:number;facebook:number;linkedin:number;youtube:number}>;
+  performance: Array<{day:string;instagram:number;facebook:number;twitter:number;youtube:number}>;
 }
 
 export interface ScheduledPost {
   id: string;
   client: string;
   initials: string;
-  platform: "Instagram" | "Facebook" | "LinkedIn" | "YouTube";
+  platform: "Instagram" | "Facebook" | "Twitter" | "YouTube";
   title: string;
   time: string;
   status: "Approved" | "Scheduled" | "Needs Review";

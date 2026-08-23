@@ -42,6 +42,7 @@ export interface ParsedContentImport {
 
 export interface SaveContentImportInput {
   clientId: string;
+  campaignId?: string;
   aiPromptId?: string;
   rawContent: string;
   parsedPostCount: number;
@@ -57,6 +58,7 @@ export interface ContentImportSaveResult {
 export interface PreviewStoredPost extends ImportedPostDraft {
   id: string;
   clientId: string;
+  campaignId?: string;
   status: "draft";
   source: "chatgpt_import";
   createdAt: string;

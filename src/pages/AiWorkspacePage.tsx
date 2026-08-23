@@ -26,7 +26,11 @@ import { listAiCampaignOptions, listAiPromptHistory, markAiPromptCopied, saveAiP
 import { generateWithLocalAi, getLocalAiStatus } from "../services/localAi";
 import { getCodexStatus, stageCodexCreativeRequest, type CodexGenerationResult, type CodexStatus } from "../services/chatgpt";
 import { stageGeneratedContent } from "../services/contentImport";
+import { executeCampaignAutomation, type AutomationMode } from "../services/campaignAutomation";
+import { listSocialAccounts } from "../services/automation";
+import { listCampaigns } from "../services/campaigns";
 import type { ClientDetail, ClientSummary, PlatformKey } from "../types/client";
+import type { SocialAccountRecord } from "../types/automation";
 import type { AiPromptHistoryItem, AiWorkspaceInput, CampaignOption, ManualAiWorkflow, PromptTemplateType } from "../types/aiWorkspace";
 import type { LocalAiResult, LocalAiStatus } from "../services/localAi";
 import { promptTemplates } from "../types/aiWorkspace";
@@ -34,7 +38,7 @@ import { promptTemplates } from "../types/aiWorkspace";
 const platformDescriptions: Record<PlatformKey, string> = {
   instagram: "Hooks, captions, hashtags and creative prompts",
   facebook: "Conversational community-focused content",
-  linkedin: "Professional business-focused content",
+  twitter: "Concise real-time posts, hooks and image ideas",
   youtube: "Titles, descriptions, tags and thumbnails",
 };
 
@@ -107,6 +111,10 @@ export function AiWorkspacePage() {
   const [localGenerating, setLocalGenerating] = useState(false);
   const [codexStatus, setCodexStatus] = useState<CodexStatus>();
   const [codexResult, setCodexResult] = useState<CodexGenerationResult>();
+  const [automationMode, setAutomationMode] = useState<AutomationMode>("manual_approval");
+  const [automationRunning, setAutomationRunning] = useState(false);
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccountRecord[]>([]);
+  const [accountIds, setAccountIds] = useState<Record<string, string>>({});
 
   useEffect(() => {
     Promise.all([
@@ -141,23 +149,32 @@ export function AiWorkspacePage() {
     [campaigns, input.campaignId],
   );
 
-  const selectClient = async (clientId: string) => {
+  const selectClient = async (clientId: string, requestedCampaignId = "") => {
     setInput((current) => ({ ...current, clientId, campaignId: "" }));
     setClient(undefined);
     setCampaigns([]);
+    setSocialAccounts([]);
+    setAccountIds({});
     setGenerated(undefined);
     setError("");
     if (!clientId) return;
     setClientLoading(true);
     try {
-      const [detail, options] = await Promise.all([getClient(clientId), listAiCampaignOptions(clientId)]);
+      const [detail, options, accounts, campaignRecords] = await Promise.all([getClient(clientId), listAiCampaignOptions(clientId), listSocialAccounts(clientId), listCampaigns(clientId, "all")]);
+      const requestedCampaign = campaignRecords.find((campaign) => campaign.id === requestedCampaignId);
       setClient(detail);
       setCampaigns(options);
+      setSocialAccounts(accounts);
       setInput((current) => ({
         ...current,
         clientId,
+        campaignId: requestedCampaign?.id ?? "",
+        goal: requestedCampaign?.objective || current.goal,
+        topic: requestedCampaign?.description || requestedCampaign?.name || current.topic,
         tone: detail.brandProfile.brandVoice || current.tone,
-        platforms: detail.mainPlatforms.length ? detail.mainPlatforms : current.platforms,
+        platforms: requestedCampaign?.platforms.length ? requestedCampaign.platforms : detail.mainPlatforms.length ? detail.mainPlatforms : current.platforms,
+        startDate: requestedCampaign?.startDate || current.startDate,
+        endDate: requestedCampaign?.endDate || current.endDate,
       }));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -179,8 +196,9 @@ export function AiWorkspacePage() {
 
   useEffect(() => {
     const requestedClient = searchParams.get("client");
+    const requestedCampaign = searchParams.get("campaign") ?? "";
     const requestedTemplate = searchParams.get("template") as PromptTemplateType | null;
-    if (requestedClient && clients.some((item) => item.id === requestedClient) && requestedClient !== input.clientId) void selectClient(requestedClient);
+    if (requestedClient && clients.some((item) => item.id === requestedClient) && (requestedClient !== input.clientId || requestedCampaign !== input.campaignId)) void selectClient(requestedClient, requestedCampaign);
     if (requestedTemplate && promptTemplates.some((item) => item.type === requestedTemplate) && requestedTemplate !== input.templateType) selectTemplate(requestedTemplate);
   }, [clients, searchParams]);
 
@@ -292,9 +310,48 @@ export function AiWorkspacePage() {
     stageGeneratedContent({
       rawContent: codexResult.content,
       clientId: client.id,
+      campaignId: selectedCampaign?.id,
       aiPromptId: generated.id,
     });
     navigate("/ai-workspace/import");
+  };
+
+  const startAutomation = async () => {
+    setError("");
+    setNotice("");
+    if (!client) return setError("Select a client so the Brand Profile can be included.");
+    if (!codexStatus?.authenticated) return setError("Connect ChatGPT before starting automation.");
+    if (!input.goal.trim()) return setError("Enter the content goal.");
+    if (!input.topic.trim()) return setError("Enter the topic or campaign idea.");
+    if (!input.tone.trim()) return setError("Enter the requested tone.");
+    if (!input.platforms.length) return setError("Select at least one social platform.");
+    if (input.startDate && input.endDate && input.startDate > input.endDate) return setError("End date cannot be before start date.");
+    if (automationMode !== "manual_approval") {
+      const missingPlatform = input.platforms.find((platform) => !accountIds[platform]);
+      if (missingPlatform) return setError(`Select a connected ${platformLabels[missingPlatform]} account before starting automated scheduling.`);
+    }
+
+    setAutomationRunning(true);
+    try {
+      const recommendations = await listAiRecommendations(client.id);
+      const result = await executeCampaignAutomation({
+        client,
+        campaign: selectedCampaign,
+        input,
+        recommendations,
+        mode: automationMode,
+        accountIds,
+      });
+      setHistory(await listAiPromptHistory());
+      const duplicateText = result.duplicateTempIds.length ? ` ${result.duplicateTempIds.length} duplicate item(s) were skipped.` : "";
+      const outcome = automationMode === "manual_approval" ? "saved as drafts for review" : "approved and added to the persistent publishing queue";
+      setNotice(`${result.savedPostIds.length} campaign post(s) ${outcome}.${duplicateText}`);
+      if (result.savedPostIds.length) navigate(automationMode === "manual_approval" ? "/create?status=draft" : "/calendar");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setAutomationRunning(false);
+    }
   };
 
   return (
@@ -371,9 +428,13 @@ export function AiWorkspacePage() {
             <div className="ai-section-title field-wide"><span>Date range</span><small>Publishing recommendations use Asia/Kolkata</small></div>
             <label className="ai-field"><span>Start date</span><input aria-label="Prompt start date" type="date" value={input.startDate} onChange={(event) => setInput((current) => ({ ...current, startDate: event.target.value }))} /></label>
             <label className="ai-field"><span>End date</span><input aria-label="Prompt end date" type="date" value={input.endDate} onChange={(event) => setInput((current) => ({ ...current, endDate: event.target.value }))} /></label>
+            <label className="ai-field field-wide"><span>Automation mode</span><select aria-label="Automation mode" value={automationMode} onChange={(event) => setAutomationMode(event.target.value as AutomationMode)}><option value="manual_approval">Manual Approval</option><option value="auto_schedule">Auto Schedule</option><option value="full_autopilot">Full Autopilot</option></select><small>Manual Approval keeps drafts for review. Automated modes require connected publishing accounts before posts can leave this Mac.</small></label>
+            {automationMode !== "manual_approval" && input.platforms.map((platform) => (
+              <label className="ai-field field-wide" key={platform}><span>{platformLabels[platform]} publishing account <b>*</b></span><select aria-label={`${platformLabels[platform]} automation account`} value={accountIds[platform] ?? ""} onChange={(event) => setAccountIds((current) => ({ ...current, [platform]: event.target.value }))}><option value="">Select connected account</option>{socialAccounts.filter((account) => account.platform === platform && account.connectionStatus === "connected").map((account) => <option key={account.id} value={account.id}>{account.accountName}</option>)}</select></label>
+            ))}
           </div>
 
-          <footer className="ai-config-footer"><span><ShieldCheck size={14} /> Saves prompt history locally</span><button type="button" className="ai-generate-button" disabled={generating || loading || clientLoading} onClick={() => void generatePrompt()}>{generating ? <><LoaderCircle size={15} className="spin" /> Preparing brief…</> : <><Sparkles size={15} /> Generate Content</>}</button></footer>
+          <footer className="ai-config-footer"><span><ShieldCheck size={14} /> Saves prompt history locally</span><button type="button" className="secondary-button" disabled={generating || automationRunning || loading || clientLoading} onClick={() => void generatePrompt()}>{generating ? <><LoaderCircle size={15} className="spin" /> Preparing brief…</> : <><Sparkles size={15} /> Generate Content</>}</button><button type="button" className="ai-generate-button" disabled={generating || automationRunning || loading || clientLoading} onClick={() => void startAutomation()}>{automationRunning ? <><LoaderCircle size={15} className="spin" /> Automating…</> : <><WandSparkles size={15} /> Start Automation</>}</button></footer>
         </section>
 
         <section className="ai-preview-panel panel">

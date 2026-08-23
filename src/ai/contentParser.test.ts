@@ -4,7 +4,7 @@ import { ContentParseError, parseChatGptContent } from "./contentParser";
 const valid = {
   format_version: "social_content_v1",
   client_id: "client-1",
-  posts: [{ title: "Launch", topic: "New service", content_type: "image_post", platforms: { instagram: { hook: "Meet what is next", caption: "Our new service is here.", hashtags: ["#Launch"] }, linkedin: { hook: "A new chapter", caption: "We are expanding our services." } } }],
+  posts: [{ title: "Launch", topic: "New service", content_type: "image_post", platforms: { instagram: { hook: "Meet what is next", caption: "Our new service is here.", hashtags: ["#Launch"] }, twitter: { hook: "A new chapter", caption: "We are expanding our services." } } }],
 };
 
 describe("Phase 4 content parser", () => {
@@ -13,7 +13,7 @@ describe("Phase 4 content parser", () => {
     expect(parsed.formatVersion).toBe("social_content_v1");
     expect(parsed.clientIdHint).toBe("client-1");
     expect(parsed.posts).toHaveLength(1);
-    expect(parsed.posts[0].platforms.map((version) => version.platform)).toEqual(["instagram", "linkedin"]);
+    expect(parsed.posts[0].platforms.map((version) => version.platform)).toEqual(["instagram", "twitter"]);
     expect(parsed.posts[0].platforms[0].caption).not.toBe(parsed.posts[0].platforms[1].caption);
   });
 

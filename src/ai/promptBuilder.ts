@@ -4,14 +4,14 @@ import type { PromptBuildContext } from "../types/aiWorkspace";
 const platformLabels: Record<PlatformKey, string> = {
   instagram: "Instagram",
   facebook: "Facebook",
-  linkedin: "LinkedIn",
+  twitter: "Twitter",
   youtube: "YouTube",
 };
 
 const platformRequirements: Record<PlatformKey, string[]> = {
   instagram: ["A scroll-stopping hook", "An engaging caption", "Relevant hashtags", "A clear CTA", "Creative idea", "Detailed image prompt"],
   facebook: ["A conversational opening", "A community-friendly caption", "A natural CTA", "Recommended post format", "Creative idea"],
-  linkedin: ["A professional opening", "Business-focused value", "A credible professional CTA", "Relevant professional hashtags", "Visual concept"],
+  twitter: ["A concise opening and complete post of 280 characters or fewer", "One clear idea", "A natural CTA when useful", "No more than two relevant hashtags", "Optional image concept"],
   youtube: ["Video title", "Description", "Keywords/tags", "Opening hook", "Thumbnail concept", "Recommended video format"],
 };
 
@@ -27,7 +27,7 @@ function platformOutput(platform: PlatformKey): Record<string, unknown> {
   const common = { hook: "", caption: "", cta: "", creative_idea: "" };
   if (platform === "instagram") return { ...common, hashtags: [""], image_prompt: "" };
   if (platform === "facebook") return { ...common, post_format: "" };
-  if (platform === "linkedin") return { ...common, hashtags: [""] };
+  if (platform === "twitter") return { ...common, hashtags: [""] };
   return { title: "", description: "", hook: "", keywords: [""], thumbnail_concept: "", video_format: "" };
 }
 

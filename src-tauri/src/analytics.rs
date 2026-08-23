@@ -138,15 +138,22 @@ fn normalise_official_metrics(
             graph_metric(raw, "saved"),
             0,
         ),
-        "linkedin" => (
+        "twitter" => (
+            number(
+                raw.pointer("/data/public_metrics/impression_count")
+                    .or_else(|| raw.pointer("/data/non_public_metrics/impression_count")),
+            ),
+            number(
+                raw.pointer("/data/public_metrics/impression_count")
+                    .or_else(|| raw.pointer("/data/non_public_metrics/impression_count")),
+            ),
             0,
+            number(raw.pointer("/data/public_metrics/like_count")),
+            number(raw.pointer("/data/public_metrics/reply_count")),
+            number(raw.pointer("/data/public_metrics/retweet_count"))
+                + number(raw.pointer("/data/public_metrics/quote_count")),
             0,
-            0,
-            number(raw.pointer("/likesSummary/totalLikes")),
-            number(raw.pointer("/commentsSummary/totalFirstLevelComments")),
-            0,
-            0,
-            0,
+            number(raw.pointer("/data/non_public_metrics/url_link_clicks")),
         ),
         "youtube" => (
             number(raw.pointer("/items/0/statistics/viewCount")),
@@ -464,6 +471,24 @@ mod tests {
         assert_eq!(metrics.3, 84);
         assert_eq!(metrics.4, 7);
     }
+
+    #[test]
+    fn normalises_twitter_post_metrics() {
+        let raw = json!({
+            "data": {
+                "public_metrics": {
+                    "impression_count": 2300,
+                    "like_count": 96,
+                    "reply_count": 12,
+                    "retweet_count": 18,
+                    "quote_count": 4
+                },
+                "non_public_metrics": { "url_link_clicks": 37 }
+            }
+        });
+        let metrics = normalise_official_metrics("twitter", &raw);
+        assert_eq!(metrics, (2300, 2300, 0, 96, 12, 22, 0, 37));
+    }
     #[test]
     fn collects_metrics_and_closes_the_learning_loop() {
         let connection = Connection::open_in_memory().unwrap();
@@ -484,7 +509,21 @@ mod tests {
         let past = (Local::now() - chrono::Duration::minutes(1))
             .format("%Y-%m-%dT%H:%M:%S")
             .to_string();
-        calendar::schedule_post(&db, &post, &past, "Asia/Kolkata").unwrap();
+        let account = crate::social_accounts::connect_mock_account(
+            &db,
+            &client,
+            "instagram",
+            "Selected analytics account",
+        )
+        .unwrap();
+        calendar::schedule_post(
+            &db,
+            &post,
+            &past,
+            "Asia/Kolkata",
+            std::collections::HashMap::from([("instagram".into(), account)]),
+        )
+        .unwrap();
         automation::tick(&db).unwrap();
         assert_eq!(collect_mock_analytics(&db).unwrap(), 1);
         let metrics = dashboard(

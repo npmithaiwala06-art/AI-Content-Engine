@@ -70,7 +70,7 @@ pub fn list_social_accounts(
 }
 
 fn supported_platform(platform: &str) -> bool {
-    ["instagram", "facebook", "linkedin", "youtube"].contains(&platform)
+    ["instagram", "facebook", "twitter", "youtube"].contains(&platform)
 }
 
 fn optional_trimmed(value: Option<String>) -> Option<String> {
@@ -83,7 +83,7 @@ fn optional_trimmed(value: Option<String>) -> Option<String> {
 fn default_token_endpoint(platform: &str) -> Option<String> {
     match platform {
         "youtube" => Some("https://oauth2.googleapis.com/token".into()),
-        "linkedin" => Some("https://www.linkedin.com/oauth/v2/accessToken".into()),
+        "twitter" => Some("https://api.x.com/2/oauth2/token".into()),
         _ => None,
     }
 }
@@ -222,7 +222,7 @@ pub fn connect_mock_account(
     platform: &str,
     account_name: &str,
 ) -> Result<String, AppError> {
-    if !["instagram", "facebook", "linkedin", "youtube"].contains(&platform) {
+    if !["instagram", "facebook", "twitter", "youtube"].contains(&platform) {
         return Err(AppError::Validation("Unsupported platform".into()));
     }
     let now = Utc::now().to_rfc3339();

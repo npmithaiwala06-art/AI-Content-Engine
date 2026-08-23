@@ -54,9 +54,8 @@ CREATE TABLE IF NOT EXISTS platforms (
 INSERT OR IGNORE INTO platforms (id, display_name, adapter_key, is_initial) VALUES
     ('instagram', 'Instagram', 'instagram', 1),
     ('facebook', 'Facebook', 'facebook', 1),
-    ('linkedin', 'LinkedIn', 'linkedin', 1),
+    ('twitter', 'Twitter', 'twitter', 1),
     ('youtube', 'YouTube', 'youtube', 1),
-    ('x', 'X', 'x', 0),
     ('threads', 'Threads', 'threads', 0),
     ('tiktok', 'TikTok', 'tiktok', 0),
     ('pinterest', 'Pinterest', 'pinterest', 0),

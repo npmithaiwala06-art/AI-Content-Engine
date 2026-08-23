@@ -1,7 +1,7 @@
 import type { PlatformKey } from "../types/client";
 import type { ImportedPlatformDraft, ImportedPostDraft, ParsedContentImport } from "../types/contentImport";
 
-const platforms: PlatformKey[] = ["instagram", "facebook", "linkedin", "youtube"];
+const platforms: PlatformKey[] = ["instagram", "facebook", "twitter", "youtube"];
 
 export class ContentParseError extends Error {
   constructor(message: string, readonly issues: string[] = []) {

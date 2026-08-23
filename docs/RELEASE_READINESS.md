@@ -4,7 +4,7 @@ Open **Release Readiness** in SocialFlow OS 0.3.0. The screen runs its checks ag
 
 ## Phase 12 — Official social connections
 
-The phase becomes complete when Instagram, Facebook, LinkedIn and YouTube each have an officially connected account and their **Validate** action succeeds. Mock accounts do not count.
+The phase becomes complete when Instagram, Facebook, Twitter and YouTube each have an officially connected account and their **Validate** action succeeds. Mock accounts do not count.
 
 ## Phase 35 — Live scheduler and publishing tests
 

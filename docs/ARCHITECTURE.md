@@ -27,7 +27,7 @@ AI content cannot jump directly into scheduling. Imported content starts as `dra
 │ Rust native core         ▼                                           │
 │   SQLite · filesystem · scheduler · reports · backup · notifications │
 │                         │ normalized adapter contract                │
-│   Mock / Instagram / Facebook / LinkedIn / YouTube adapters         │
+│   Mock / Instagram / Facebook / Twitter / YouTube adapters         │
 └─────────────────────────┬────────────────────────────────────────────┘
                           │ Internet only for official OAuth/APIs
                           ▼
@@ -64,7 +64,7 @@ The foreground desktop worker checks every 15 seconds while SocialFlow OS is run
 
 ## Platform architecture
 
-The shared adapter contract covers connection validation, publishing, status and analytics. Current local production testing uses `MockPlatformAdapter`, including deterministic success, intentional failure, retry and fake analytics. Instagram, Facebook, LinkedIn and YouTube each have isolated official adapter modules and honest connection requirements in the UI; real OAuth and publishing remain disabled until official developer applications and user authorization exist.
+The shared adapter contract covers connection validation, publishing, status and analytics. Current local production testing uses `MockPlatformAdapter`, including deterministic success, intentional failure, retry and fake analytics. Instagram, Facebook, Twitter and YouTube each have isolated official adapter modules and honest connection requirements in the UI; real OAuth and publishing remain disabled until official developer applications and user authorization exist.
 
 No social-media password is accepted. Future OAuth refresh/access tokens must be stored through macOS Keychain; SQLite stores only non-secret account metadata and a future secure-storage reference.
 

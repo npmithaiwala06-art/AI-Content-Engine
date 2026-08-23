@@ -78,6 +78,24 @@ fn needs_refresh(bundle: &OAuthCredentialBundle) -> bool {
         .unwrap_or(false)
 }
 
+fn validated_token_endpoint(endpoint: &str) -> Result<reqwest::Url, AppError> {
+    let url = reqwest::Url::parse(endpoint)
+        .map_err(|_| AppError::Validation("OAuth token endpoint is invalid".into()))?;
+    let host = url.host_str().unwrap_or_default();
+    let allowed = [
+        "oauth2.googleapis.com",
+        "api.x.com",
+        "graph.facebook.com",
+        "www.linkedin.com",
+    ];
+    if url.scheme() != "https" || !allowed.contains(&host) {
+        return Err(AppError::Validation(
+            "OAuth token endpoint is not an approved official provider endpoint".into(),
+        ));
+    }
+    Ok(url)
+}
+
 fn refresh_credential(
     storage_key: &str,
     mut bundle: OAuthCredentialBundle,
@@ -92,11 +110,7 @@ fn refresh_credential(
             "This authorization cannot refresh because its OAuth token endpoint is missing. Reconnect the account.".into(),
         )
     })?;
-    if !endpoint.starts_with("https://") {
-        return Err(AppError::Validation(
-            "OAuth refresh endpoint must use HTTPS".into(),
-        ));
-    }
+    let endpoint = validated_token_endpoint(&endpoint)?;
     let client_id = bundle.client_id.clone().ok_or_else(|| {
         AppError::Validation(
             "This authorization cannot refresh because its OAuth client ID is missing. Reconnect the account.".into(),
@@ -119,14 +133,8 @@ fn refresh_credential(
         })?;
     if !response.status().is_success() {
         let status = response.status();
-        let detail = response.text().unwrap_or_default();
-        let safe_detail = if detail.chars().count() > 500 {
-            format!("{}…", detail.chars().take(500).collect::<String>())
-        } else {
-            detail
-        };
         return Err(AppError::Validation(format!(
-            "Social authorization refresh failed ({status}): {safe_detail}"
+            "Social authorization refresh failed ({status}). Reauthorize this account from Social Accounts."
         )));
     }
     let refreshed: RefreshResponse = response.json().map_err(|error| {
@@ -245,5 +253,17 @@ mod tests {
             ..OAuthCredentialBundle::default()
         };
         assert!(needs_refresh(&bundle));
+    }
+
+    #[test]
+    fn allows_only_official_oauth_token_hosts() {
+        assert!(validated_token_endpoint("https://oauth2.googleapis.com/token").is_ok());
+        assert!(validated_token_endpoint("https://api.x.com/2/oauth2/token").is_ok());
+        assert!(validated_token_endpoint("https://attacker.example/token").is_err());
+        assert!(
+            validated_token_endpoint("https://oauth2.googleapis.com.attacker.example/token")
+                .is_err()
+        );
+        assert!(validated_token_endpoint("http://oauth2.googleapis.com/token").is_err());
     }
 }

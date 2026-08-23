@@ -43,7 +43,7 @@ export const scheduledPosts: ScheduledPost[] = [
     id: "schedule-3",
     client: "Kite & Co.",
     initials: "KC",
-    platform: "LinkedIn",
+    platform: "Twitter",
     title: "What we learned from 100 launches",
     time: "4:15 PM",
     status: "Needs Review",
@@ -83,11 +83,11 @@ export const activityItems: ActivityItem[] = [
 ];
 
 export const performanceData = [
-  { day: "Mon", instagram: 4200, facebook: 2600, linkedin: 1900 },
-  { day: "Tue", instagram: 5100, facebook: 3100, linkedin: 2400 },
-  { day: "Wed", instagram: 4800, facebook: 2900, linkedin: 3200 },
-  { day: "Thu", instagram: 6200, facebook: 3600, linkedin: 2800 },
-  { day: "Fri", instagram: 5900, facebook: 4200, linkedin: 3500 },
-  { day: "Sat", instagram: 7300, facebook: 3900, linkedin: 2200 },
-  { day: "Sun", instagram: 6800, facebook: 4600, linkedin: 2700 },
+  { day: "Mon", instagram: 4200, facebook: 2600, twitter: 1900 },
+  { day: "Tue", instagram: 5100, facebook: 3100, twitter: 2400 },
+  { day: "Wed", instagram: 4800, facebook: 2900, twitter: 3200 },
+  { day: "Thu", instagram: 6200, facebook: 3600, twitter: 2800 },
+  { day: "Fri", instagram: 5900, facebook: 4200, twitter: 3500 },
+  { day: "Sat", instagram: 7300, facebook: 3900, twitter: 2200 },
+  { day: "Sun", instagram: 6800, facebook: 4600, twitter: 2700 },
 ];
