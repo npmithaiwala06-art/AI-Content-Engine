@@ -1,0 +1,69 @@
+1
+00:00:00,000 --> 00:00:10,049
+One workspace for the complete social workflow
+Plan · Create · Approve · Schedule · Monitor
+
+2
+00:00:10,049 --> 00:00:25,617
+A simple, controlled path
+Choose the client first — then move one step at a time.
+
+3
+00:00:25,617 --> 00:00:42,743
+Start on the Dashboard
+Your command center for status, schedules and performance.
+
+4
+00:00:42,743 --> 00:01:00,788
+Keep every client separate
+One workspace for each company or brand.
+
+5
+00:01:00,788 --> 00:01:20,815
+Organize work into campaigns
+Use campaigns for launches, festivals, offers and monthly plans.
+
+6
+00:01:20,815 --> 00:01:43,318
+Prepare drafts in AI Workspace
+Describe the goal, core idea, platforms and content types.
+
+7
+00:01:43,318 --> 00:02:09,289
+Refine copy and attach media
+Check the message and creative together before approval.
+
+8
+00:02:09,289 --> 00:02:28,113
+Use human approval
+Approve only when the client, platform and media are correct.
+
+9
+00:02:28,113 --> 00:03:00,241
+Connect the exact social account
+Use official platform sign-in — never paste passwords or tokens.
+
+10
+00:03:00,241 --> 00:03:18,640
+Schedule precisely
+Confirm the account, date, time, timezone and media.
+
+11
+00:03:18,640 --> 00:03:40,577
+Monitor the Publishing Queue
+Understand the result before retrying or publishing again.
+
+12
+00:03:40,577 --> 00:03:55,580
+Five rules for daily use
+Automation should reduce work — not remove responsibility.
+
+13
+00:03:55,580 --> 00:04:14,828
+One controlled workspace
+Campaign planning, content, approval, account selection, scheduling and monitoring.
+
+14
+00:04:14,828 --> 00:04:24,240
+Plan clearly. Create carefully.
+Approve confidently · Schedule precisely · Monitor responsibly

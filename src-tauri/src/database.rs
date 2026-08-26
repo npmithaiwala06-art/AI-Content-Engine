@@ -20,6 +20,8 @@ const ANALYTICS_MIGRATION: &str = include_str!("../migrations/008_analytics_lear
 const REPORTS_MIGRATION: &str = include_str!("../migrations/009_reports_export.sql");
 const CAMPAIGNS_MIGRATION: &str = include_str!("../migrations/010_campaigns_plans.sql");
 const TWITTER_MIGRATION: &str = include_str!("../migrations/011_replace_linkedin_with_twitter.sql");
+const RESTORE_TWITTER_MIGRATION: &str =
+    include_str!("../migrations/013_restore_twitter_platform.sql");
 
 pub struct Database {
     pub(crate) connection: Mutex<Connection>,
@@ -211,6 +213,7 @@ pub(crate) fn apply_migrations(connection: &Connection) -> Result<(), rusqlite::
         (9, REPORTS_MIGRATION),
         (10, CAMPAIGNS_MIGRATION),
         (11, TWITTER_MIGRATION),
+        (13, RESTORE_TWITTER_MIGRATION),
     ] {
         if current_version.unwrap_or(0) >= version {
             continue;
@@ -253,7 +256,7 @@ mod tests {
                 row.get(0)
             })
             .unwrap();
-        assert_eq!(version, 11);
+        assert_eq!(version, 13);
 
         let ai_prompts_table: i64 = connection
             .query_row(
@@ -290,6 +293,96 @@ mod tests {
             )
             .unwrap();
         assert_eq!(removed_platforms, 0);
+    }
+
+    #[test]
+    fn restores_x_records_to_the_supported_twitter_platform() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .pragma_update(None, "foreign_keys", "ON")
+            .unwrap();
+        apply_migrations(&connection).unwrap();
+
+        connection
+            .execute(
+                "INSERT INTO platforms(id,display_name,adapter_key,is_enabled,is_initial) VALUES('x','X','x',1,1)",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO clients(id,name,company_name,brand_name,status,main_platforms,created_at,updated_at) VALUES('client-x','Client X','Client X','Client X','active','[\"instagram\",\"x\"]',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO posts(id,client_id,title,core_idea,content_type,status,created_at,updated_at) VALUES('post-x','client-x','Post X','Test','image_post','draft',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO post_versions(id,post_id,platform_id) VALUES('version-x','post-x','x')",
+                [],
+            )
+            .unwrap();
+        connection
+            .execute("DELETE FROM schema_migrations WHERE version=13", [])
+            .unwrap();
+
+        apply_migrations(&connection).unwrap();
+
+        let platform: String = connection
+            .query_row(
+                "SELECT platform_id FROM post_versions WHERE id='version-x'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let client_platforms: String = connection
+            .query_row(
+                "SELECT main_platforms FROM clients WHERE id='client-x'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        let x_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM platforms WHERE id='x'", [], |row| {
+                row.get(0)
+            })
+            .unwrap();
+
+        assert_eq!(platform, "twitter");
+        assert_eq!(client_platforms, "[\"instagram\",\"twitter\"]");
+        assert_eq!(x_count, 0);
+    }
+
+    #[test]
+    fn restores_x_records_without_aborting_on_an_existing_twitter_account() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .pragma_update(None, "foreign_keys", "ON")
+            .unwrap();
+        apply_migrations(&connection).unwrap();
+        connection.execute_batch(
+            "INSERT INTO platforms(id,display_name,adapter_key,is_enabled,is_initial) VALUES('x','X','x',1,1);
+             INSERT INTO clients(id,name,company_name,brand_name,status,created_at,updated_at) VALUES('collision-client','Collision Client','Collision Client','Collision Client','active',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+             INSERT INTO social_accounts(id,client_id,platform_id,account_name,external_account_id,connection_status) VALUES('twitter-account','collision-client','twitter','Twitter account','same-user','disconnected');
+             INSERT INTO social_accounts(id,client_id,platform_id,account_name,external_account_id,connection_status) VALUES('x-account','collision-client','x','X account','same-user','connected');
+             DELETE FROM schema_migrations WHERE version=13;",
+        ).unwrap();
+
+        apply_migrations(&connection).unwrap();
+
+        let count: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM social_accounts WHERE client_id='collision-client' AND platform_id='twitter' AND external_account_id='same-user'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 1);
     }
 
     #[test]

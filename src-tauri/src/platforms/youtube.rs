@@ -3,6 +3,25 @@ use reqwest::blocking::Client;
 use reqwest::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, LOCATION};
 use serde_json::{json, Value};
 use std::path::Path;
+use url::Url;
+
+fn validate_resumable_upload_url(value: &str) -> Result<String, String> {
+    let url = Url::parse(value)
+        .map_err(|_| "YouTube returned an invalid resumable upload URL".to_string())?;
+    let allowed_host = matches!(
+        url.host_str(),
+        Some("www.googleapis.com" | "youtube.googleapis.com")
+    );
+    if url.scheme() != "https"
+        || !allowed_host
+        || !url.path().starts_with("/upload/youtube/v3/videos")
+        || url.username() != ""
+        || url.password().is_some()
+    {
+        return Err("YouTube returned an untrusted resumable upload URL".into());
+    }
+    Ok(url.into())
+}
 
 pub struct YouTubeAdapter {
     client: Client,
@@ -95,6 +114,7 @@ impl YouTubeAdapter {
             .and_then(|value| value.to_str().ok())
             .map(str::to_owned)
             .ok_or_else(|| "YouTube did not return a resumable upload URL".to_string())?;
+        let location = validate_resumable_upload_url(&location)?;
         let response = self
             .client
             .put(location)
@@ -240,6 +260,30 @@ impl PlatformAdapter for YouTubeAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn resumable_upload_url_must_be_https_on_google_upload_hosts() {
+        assert!(validate_resumable_upload_url(
+            "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=abc"
+        )
+        .is_ok());
+        assert!(validate_resumable_upload_url(
+            "https://youtube.googleapis.com/upload/youtube/v3/videos?upload_id=abc"
+        )
+        .is_ok());
+        assert!(validate_resumable_upload_url(
+            "http://www.googleapis.com/upload/youtube/v3/videos"
+        )
+        .is_err());
+        assert!(
+            validate_resumable_upload_url("https://attacker.example/upload?token=steal").is_err()
+        );
+        assert!(
+            validate_resumable_upload_url("https://www.googleapis.com.evil.example/upload")
+                .is_err()
+        );
+    }
+
     #[test]
     fn youtube_requires_an_attached_video() {
         let adapter = YouTubeAdapter::new("token".into(), "channel".into(), Value::Null);

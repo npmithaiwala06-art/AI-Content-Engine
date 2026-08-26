@@ -1,0 +1,121 @@
+{
+  "title": "SocialFlow OS — Step-by-Step Guide",
+  "subtitle": "Plan clearly. Review carefully. Publish responsibly.",
+  "audio": "voiceover.mp3",
+  "resolution": [1920, 1080],
+  "fps": 30,
+  "scenes": [
+    {
+      "step": "WELCOME",
+      "heading": "One workspace for the complete social workflow",
+      "caption": "Plan · Create · Approve · Schedule · Monitor",
+      "bullets": ["Multiple clients", "Human review", "Local-first operations"],
+      "durationWeight": 142,
+      "style": "title"
+    },
+    {
+      "step": "THE JOURNEY",
+      "heading": "A simple, controlled path",
+      "caption": "Choose the client first — then move one step at a time.",
+      "bullets": ["Client", "Campaign", "Content", "Approval", "Account", "Schedule", "Monitor"],
+      "durationWeight": 220,
+      "style": "workflow"
+    },
+    {
+      "step": "STEP 1",
+      "heading": "Start on the Dashboard",
+      "caption": "Your command center for status, schedules and performance.",
+      "bullets": ["Check the active client", "Review drafts and approvals", "Watch items needing attention"],
+      "durationWeight": 242,
+      "screenshot": "screenshots/dashboard.png"
+    },
+    {
+      "step": "STEP 2",
+      "heading": "Keep every client separate",
+      "caption": "One workspace for each company or brand.",
+      "bullets": ["Add brand information", "Choose preferred platforms", "Prevent account and media mix-ups"],
+      "durationWeight": 255,
+      "screenshot": "screenshots/clients.png"
+    },
+    {
+      "step": "STEP 3",
+      "heading": "Organize work into campaigns",
+      "caption": "Use campaigns for launches, festivals, offers and monthly plans.",
+      "bullets": ["Name and objective", "Start and end dates", "Open AI Workspace with campaign context"],
+      "durationWeight": 283,
+      "screenshot": "screenshots/campaigns.png"
+    },
+    {
+      "step": "STEP 4",
+      "heading": "Prepare drafts in AI Workspace",
+      "caption": "Describe the goal, core idea, platforms and content types.",
+      "bullets": ["Start with Manual Approval", "Review brand accuracy", "Never treat generated output as final automatically"],
+      "durationWeight": 318,
+      "screenshot": "screenshots/ai-workspace.png"
+    },
+    {
+      "step": "STEP 5",
+      "heading": "Refine copy and attach media",
+      "caption": "Check the message and creative together before approval.",
+      "bullets": ["Hook, caption and call to action", "Correct image or video", "Preview and download when needed"],
+      "durationWeight": 367,
+      "screenshot": "screenshots/content-studio.png"
+    },
+    {
+      "step": "STEP 6",
+      "heading": "Use human approval",
+      "caption": "Approve only when the client, platform and media are correct.",
+      "bullets": ["Review the complete post", "Request changes when needed", "Do not schedule unfinished work"],
+      "durationWeight": 266,
+      "screenshot": "screenshots/approvals.png"
+    },
+    {
+      "step": "STEP 7",
+      "heading": "Connect the exact social account",
+      "caption": "Use official platform sign-in — never paste passwords or tokens.",
+      "bullets": ["Choose the SocialFlow client", "Press Connect Account", "Use Mock Mode until owner configuration is ready"],
+      "durationWeight": 454,
+      "screenshot": "screenshots/accounts.png"
+    },
+    {
+      "step": "STEP 8",
+      "heading": "Schedule precisely",
+      "caption": "Confirm the account, date, time, timezone and media.",
+      "bullets": ["Use an approved post", "Select the exact connected account", "Double-check before saving"],
+      "durationWeight": 260,
+      "screenshot": "screenshots/calendar.png"
+    },
+    {
+      "step": "STEP 9",
+      "heading": "Monitor the Publishing Queue",
+      "caption": "Understand the result before retrying or publishing again.",
+      "bullets": ["Queued", "Publishing", "Retrying or failed", "Published"],
+      "durationWeight": 310,
+      "screenshot": "screenshots/publishing-queue.png"
+    },
+    {
+      "step": "SAFE ROUTINE",
+      "heading": "Five rules for daily use",
+      "caption": "Automation should reduce work — not remove responsibility.",
+      "bullets": ["Use Mock Mode first", "Keep clients separate", "Review every output", "Choose the exact account", "Investigate failures before retrying"],
+      "durationWeight": 212,
+      "style": "rules"
+    },
+    {
+      "step": "EXPLAIN IT SIMPLY",
+      "heading": "One controlled workspace",
+      "caption": "Campaign planning, content, approval, account selection, scheduling and monitoring.",
+      "bullets": ["Easy for a team to follow", "Clear publishing responsibility", "Manual upload remains available"],
+      "durationWeight": 272,
+      "style": "workflow"
+    },
+    {
+      "step": "SOCIALFLOW OS",
+      "heading": "Plan clearly. Create carefully.",
+      "caption": "Approve confidently · Schedule precisely · Monitor responsibly",
+      "bullets": ["Your social workflow — organized and reviewable"],
+      "durationWeight": 133,
+      "style": "closing"
+    }
+  ]
+}

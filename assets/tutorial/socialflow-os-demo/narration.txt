@@ -1,0 +1,27 @@
+Welcome to SocialFlow OS — a local workspace for planning, reviewing, scheduling, and monitoring social media content across multiple clients.
+
+The easiest way to explain SocialFlow OS is as one controlled journey: choose the client, plan the campaign, prepare the content, review the creative, select the exact social account, schedule it, and monitor the result.
+
+Start on the Dashboard. This is your command center. It shows active clients, drafts, approvals, scheduled posts, publishing activity, and recent performance. Before starting any task, check the client name and the current status of the work.
+
+Next, open Clients. Create one workspace for each company or brand. Add the brand information, its preferred platforms, and its campaign context. Keeping every client separate prevents captions, media, and connected accounts from being mixed accidentally.
+
+Open Campaigns when you want to organize content around a launch, festival, offer, or monthly plan. Give the campaign a clear name, objective, start date, and end date. From the campaign card, choose Start Automation to open the AI Workspace with the campaign context already loaded.
+
+In AI Workspace, describe the goal and core idea. Select the dates, platforms, and content types you need. Manual Approval is the safest starting mode. SocialFlow can prepare structured drafts, but a person should still review the wording, brand accuracy, media, and destination account before anything becomes public.
+
+Use Content Studio to refine each platform version. Check the hook, caption, call to action, hashtags, title, and description. Attach the correct image or video from Media Library. Image previews should be inspected at full size, and video previews should be played with normal controls before approval. You can also download media for manual uploading when required.
+
+Move the post to Approvals when the content is ready. Review the complete message and creative together. Approve only when the client, campaign, platform, and media are correct. If anything needs improvement, request changes instead of scheduling an unfinished post.
+
+To prepare a real destination, open Social Accounts. First choose the client. Then select Connect Account for the platform. SocialFlow should open the platform’s official sign-in page. Enter passwords only on that official website — never inside SocialFlow, a message, or a spreadsheet. SocialFlow should never ask you to copy and paste access tokens. Until official owner configuration is ready, use Mock Mode to test safely without publishing anything.
+
+Open Calendar to schedule an approved post. Select the exact connected account, not only the platform. Confirm the client, account name, date, time, timezone, and media. This explicit account choice is the most important protection in a multi-client workspace.
+
+After scheduling, use Publishing Queue to monitor progress. A post may be queued, publishing, retrying, failed, or published. Read errors before retrying, and never repeatedly press Publish Now when the provider result is uncertain. Published results and analytics can be reviewed from the corresponding pages.
+
+For a safe daily routine, remember five rules. Use Mock Mode first. Keep every client separate. Review every generated output. Select the exact account before scheduling. And investigate failures before retrying.
+
+When explaining SocialFlow OS to someone else, keep it simple: it brings campaign planning, content preparation, approval, account selection, scheduling, and monitoring into one controlled workspace — while keeping the final publishing decision clear and human-reviewable.
+
+That is the SocialFlow OS workflow: plan clearly, create carefully, approve confidently, schedule precisely, and monitor responsibly.

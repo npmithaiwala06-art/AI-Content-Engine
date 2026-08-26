@@ -12,3 +12,7 @@ releases/
 coverage/
 *.tsbuildinfo
 .tauri/
+assets/tutorial/**/build/
+assets/tutorial/**/review/
+assets/tutorial/**/__pycache__/
+assets/tutorial/*.zip

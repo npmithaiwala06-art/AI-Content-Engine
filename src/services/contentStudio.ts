@@ -6,6 +6,33 @@ import type { PlatformKey } from "../types/client";
 import type { ContentPostInput, PostDetail, PostSummary, PostVersion } from "../types/content";
 
 const manualKey = "socialflow.preview.manualPosts.v1";
+const supportedPlatformSet = new Set<PlatformKey>(["instagram", "facebook", "twitter", "youtube"]);
+
+export function normalizeContentPlatform(value: string): PlatformKey | undefined {
+  const normalized = value === "x" ? "twitter" : value;
+  return supportedPlatformSet.has(normalized as PlatformKey) ? normalized as PlatformKey : undefined;
+}
+
+function normalizeVersions(versions: PostVersion[]): PostVersion[] {
+  return versions.flatMap((version) => {
+    const platform = normalizeContentPlatform(String(version.platform));
+    return platform ? [{ ...version, platform }] : [];
+  });
+}
+
+function normalizePostDetail(post: PostDetail): PostDetail {
+  return { ...post, versions: normalizeVersions(post.versions) };
+}
+
+function normalizePostSummary(post: PostSummary): PostSummary {
+  return {
+    ...post,
+    platforms: post.platforms.flatMap((value) => {
+      const platform = normalizeContentPlatform(String(value));
+      return platform ? [platform] : [];
+    }),
+  };
+}
 
 type PreviewPost = PostDetail & { updatedAt: string };
 
@@ -29,7 +56,7 @@ async function previewPosts(): Promise<PreviewPost[]> {
 }
 
 export async function listPosts(filters: { clientId?: string; status?: string; search?: string } = {}): Promise<PostSummary[]> {
-  if (isDesktopRuntime()) return invoke<PostSummary[]>("list_posts", filters);
+  if (isDesktopRuntime()) return (await invoke<PostSummary[]>("list_posts", filters)).map(normalizePostSummary);
   const clients = await listClients({ filter: "all" });
   const names = new Map(clients.map((client) => [client.id, client.clientName]));
   const query = filters.search?.trim().toLowerCase() ?? "";
@@ -38,15 +65,15 @@ export async function listPosts(filters: { clientId?: string; status?: string; s
     && (!query || `${post.title} ${post.topic}`.toLowerCase().includes(query)))
     .map((post) => ({ id: post.id, clientId: post.clientId, clientName: names.get(post.clientId) ?? "Unknown client", title: post.title,
       topic: post.topic, contentType: post.contentType, status: post.status, source: post.source,
-      platforms: post.versions.map((version) => version.platform), proposedPublishAt: post.proposedDate ? `${post.proposedDate}T${post.proposedTime || "09:00"}:00` : undefined,
+      platforms: normalizeVersions(post.versions).map((version) => version.platform), proposedPublishAt: post.proposedDate ? `${post.proposedDate}T${post.proposedTime || "09:00"}:00` : undefined,
       updatedAt: post.updatedAt })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export async function getPost(postId: string): Promise<PostDetail> {
-  if (isDesktopRuntime()) return invoke<PostDetail>("get_post", { postId });
+  if (isDesktopRuntime()) return normalizePostDetail(await invoke<PostDetail>("get_post", { postId }));
   const post = (await previewPosts()).find((item) => item.id === postId);
   if (!post) throw new Error("Post not found");
-  return structuredClone(post);
+  return normalizePostDetail(structuredClone(post));
 }
 
 export async function savePost(postId: string | undefined, input: ContentPostInput): Promise<string> {

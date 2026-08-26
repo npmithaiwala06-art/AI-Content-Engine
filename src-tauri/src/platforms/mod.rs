@@ -81,12 +81,8 @@ pub fn official_adapter(
     }
 }
 
-pub(crate) fn response_error(response: reqwest::blocking::Response) -> String {
-    let status = response.status();
-    let body = response
-        .text()
-        .unwrap_or_else(|_| "The platform returned an unreadable response".into());
-    let detail = serde_json::from_str::<Value>(&body)
+fn safe_provider_error_detail(body: &str) -> String {
+    let detail = serde_json::from_str::<Value>(body)
         .ok()
         .and_then(|value| {
             value
@@ -98,6 +94,49 @@ pub(crate) fn response_error(response: reqwest::blocking::Response) -> String {
                 .and_then(Value::as_str)
                 .map(str::to_owned)
         })
-        .unwrap_or(body);
+        .filter(|value| value.len() <= 500)
+        .filter(|value| {
+            let lower = value.to_ascii_lowercase();
+            !["access_token", "refresh_token", "client_secret", "bearer "]
+                .iter()
+                .any(|needle| lower.contains(needle))
+        })
+        .map(|value| {
+            value
+                .chars()
+                .filter(|character| !character.is_control() || *character == '\n')
+                .collect()
+        });
+    detail
+        .unwrap_or_else(|| "The platform rejected the request without a safe error message".into())
+}
+
+pub(crate) fn response_error(response: reqwest::blocking::Response) -> String {
+    let status = response.status();
+    let body = response.text().unwrap_or_default();
+    let detail = safe_provider_error_detail(&body);
     format!("Platform request failed ({status}): {detail}")
+}
+
+#[cfg(test)]
+mod security_tests {
+    use super::*;
+
+    #[test]
+    fn provider_error_detail_never_falls_back_to_raw_secret_bearing_body() {
+        let detail = safe_provider_error_detail("access_token=secret-value&debug=true");
+        assert_eq!(
+            detail,
+            "The platform rejected the request without a safe error message"
+        );
+        assert!(!detail.contains("secret-value"));
+    }
+
+    #[test]
+    fn provider_error_detail_uses_short_documented_json_message() {
+        assert_eq!(
+            safe_provider_error_detail(r#"{"error":{"message":"Permission denied"}}"#),
+            "Permission denied",
+        );
+    }
 }

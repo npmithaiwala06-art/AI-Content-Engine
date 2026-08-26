@@ -4,6 +4,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { FirstRunOnboarding } from "./FirstRunOnboarding";
 import { AppUpdater } from "./AppUpdater";
+import { PageErrorBoundary } from "./PageErrorBoundary";
 
 const pageMeta: Record<string, { title: string; description: string }> = {
   "/": { title: "Good afternoon, Neev", description: "Here’s what’s happening across your social operations." },
@@ -42,7 +43,7 @@ export function AppLayout() {
       <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((current) => !current)} />
       <div className="app-main">
         <Header {...meta} />
-        <main className="page-content"><Outlet /></main>
+        <main className="page-content"><PageErrorBoundary resetKey={pathname}><Outlet /></PageErrorBoundary></main>
       </div>
       <FirstRunOnboarding />
       <AppUpdater />

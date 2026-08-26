@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildContentAssistPrompt } from "./contentStudio";
+import { buildContentAssistPrompt, normalizeContentPlatform } from "./contentStudio";
 import { emptyContentPost, emptyVersion } from "../types/content";
 
 describe("content studio manual AI workflow", () => {
@@ -10,5 +10,11 @@ describe("content studio manual AI workflow", () => {
     expect(prompt).toContain("CLIENT: ABC Cafe");
     expect(prompt).toContain("PLATFORM: instagram");
     expect(prompt).toContain("Do not duplicate another platform's wording");
+  });
+
+  it("accepts canonical X records created by the latest database migration", () => {
+    expect(normalizeContentPlatform("x")).toBe("twitter");
+    expect(normalizeContentPlatform("twitter")).toBe("twitter");
+    expect(normalizeContentPlatform("unsupported-platform")).toBeUndefined();
   });
 });

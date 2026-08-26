@@ -13,6 +13,7 @@ mod database;
 mod error;
 mod local_ai;
 mod media_library;
+mod oauth;
 #[allow(dead_code)]
 mod platforms;
 mod readiness;
@@ -26,6 +27,7 @@ use std::path::PathBuf;
 use database::{DashboardSummary, Database};
 use error::AppError;
 use tauri::{Manager, State};
+use tauri_plugin_opener::OpenerExt;
 
 use ai_workspace::{AiPromptHistoryItem, CampaignOption, SaveAiPromptInput};
 use analytics::{
@@ -44,7 +46,7 @@ use media_library::{MediaRecord, MediaUpload};
 use readiness::ReleaseReadiness;
 use reports::ReportRecord;
 use security::SecurityStatus;
-use social_accounts::{OfficialConnectionInput, SocialAccountRecord};
+use social_accounts::SocialAccountRecord;
 use workspace::{ActivityRecord, BackupRecord, SearchResult, SettingRecord};
 
 #[tauri::command]
@@ -390,11 +392,36 @@ fn connect_mock_account(
     social_accounts::connect_mock_account(&database, &client_id, &platform, &account_name)
 }
 #[tauri::command]
-fn connect_official_account(
-    database: State<'_, Database>,
-    input: OfficialConnectionInput,
-) -> Result<String, AppError> {
-    social_accounts::connect_official_account(&database, input)
+fn list_social_oauth_configurations() -> Vec<oauth::OAuthConfiguration> {
+    oauth::list_configurations()
+}
+#[tauri::command]
+async fn connect_social_account_with_browser(
+    app: tauri::AppHandle,
+    input: oauth::BrowserOAuthInput,
+) -> Result<oauth::BrowserOAuthResult, String> {
+    let app_data = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| AppError::AppDataDirectoryUnavailable.to_string())?;
+    tauri::async_runtime::spawn_blocking(move || {
+        let database = Database::open(&app_data.join("socialflow.sqlite"))
+            .map_err(|error| error.to_string())?;
+        let browser = app.clone();
+        oauth::connect_with_browser(&database, input, move |url| {
+            browser
+                .opener()
+                .open_url(url, None::<&str>)
+                .map_err(|error| {
+                    AppError::Validation(format!(
+                        "Could not open the official sign-in page: {error}"
+                    ))
+                })
+        })
+        .map_err(|error| error.to_string())
+    })
+    .await
+    .map_err(|error| format!("Secure connection task failed: {error}"))?
 }
 #[tauri::command]
 fn validate_social_account(
@@ -710,7 +737,8 @@ pub fn run() {
             mark_notification_read,
             list_social_accounts,
             connect_mock_account,
-            connect_official_account,
+            list_social_oauth_configurations,
+            connect_social_account_with_browser,
             validate_social_account,
             disconnect_account,
             set_mock_failure,
